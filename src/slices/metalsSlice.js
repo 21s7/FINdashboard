@@ -1,54 +1,49 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_KEY = "cd0d2124f9083e64567f65d05ca5e454";
+const BASE_CURRENCY = "RUB";
+const METALS = ["XAU", "XAG", "XPT", "XPD"];
+const OUNCE_IN_GRAMS = 31.1035;
+
+const METAL_NAMES = {
+  XAU: "Золото",
+  XAG: "Серебро",
+  XPT: "Платина",
+  XPD: "Палладий",
+};
+
 export const fetchMetals = createAsyncThunk("metals/fetchMetals", async () => {
-  try {
-    // Получаем курсы XAU (золото), XAG (серебро) относительно USD
-    const response = await fetch(
-      "https://api.exchangerate.host/latest?base=USD&symbols=XAU,XAG"
-    );
+  const response = await fetch(
+    `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=${BASE_CURRENCY}&currencies=${METALS.join(",")}`
+  );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // data.rates будет примерно: { XAU: 0.00055, XAG: 0.04 }
-    // Это количество унций металла на 1 доллар
-    // Чтобы получить цену 1 унции в USD — инвертируем:
-    const rates = data.rates;
-
-    const goldPrice = rates.XAU ? 1 / rates.XAU : 0;
-    const silverPrice = rates.XAG ? 1 / rates.XAG : 0;
-
-    const metalsList = [
-      {
-        id: "XAU",
-        ticker: "XAU",
-        name: "Золото",
-        price: Number(goldPrice.toFixed(2)),
-      },
-      {
-        id: "XAG",
-        ticker: "XAG",
-        name: "Серебро",
-        price: Number(silverPrice.toFixed(2)),
-      },
-    ];
-
-    return metalsList;
-  } catch (err) {
-    console.error("❌ Ошибка загрузки металлов:", err);
-
-    // fallback — мок-данные
-    return [
-      { id: "XAU", ticker: "XAU", name: "Золото", price: 1900 },
-      { id: "XAG", ticker: "XAG", name: "Серебро", price: 25 },
-    ];
+  if (!response.ok) {
+    throw new Error(`Ошибка загрузки данных: ${response.status}`);
   }
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error("Ошибка от metalpriceapi.com");
+  }
+
+  const result = METALS.map((symbol) => {
+    const rubPerOunce = 1 / data.rates[symbol]; // RUB → металл
+    const rubPerGram = rubPerOunce / OUNCE_IN_GRAMS;
+
+    return {
+      id: symbol,
+      ticker: symbol,
+      name: METAL_NAMES[symbol],
+      price: Number(rubPerGram.toFixed(2)), // ₽/грамм
+      priceUsd: null, // Не используется в этой API
+      lastUpdate: new Date(data.timestamp * 1000).toISOString(),
+    };
+  });
+
+  return result;
 });
 
-// Slice (без изменений)
 const metalsSlice = createSlice({
   name: "metals",
   initialState: {
