@@ -2,11 +2,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 import { useState, useEffect } from "react";
 
-import { fetchCrypto } from "../slices/cryptoSlice";
-import { fetchCurrency } from "../slices/currencySlice";
-import { fetchBonds } from "../slices/bondsSlice";
-import { fetchShares } from "../slices/sharesSlice";
-import { fetchMetals } from "../slices/metalsSlice";
+import { fetchCrypto, clearItems as clearCrypto } from "../slices/cryptoSlice";
+import {
+  fetchCurrency,
+  clearItems as clearCurrency,
+} from "../slices/currencySlice";
+import { fetchBonds, clearItems as clearBonds } from "../slices/bondsSlice";
+import { fetchShares, clearItems as clearShares } from "../slices/sharesSlice";
+import { fetchMetals, clearItems as clearMetals } from "../slices/metalsSlice";
 
 const PortfolioBuilder = () => {
   const dispatch = useDispatch();
@@ -27,8 +30,17 @@ const PortfolioBuilder = () => {
   const [selectedId, setSelectedId] = useState("");
   const [quantity, setQuantity] = useState(1);
 
+  // Очистка всех списков кроме выбранного
+  const clearAllExcept = (typeToKeep) => {
+    if (typeToKeep !== "crypto") dispatch(clearCrypto());
+    if (typeToKeep !== "currency") dispatch(clearCurrency());
+    if (typeToKeep !== "bonds") dispatch(clearBonds());
+    if (typeToKeep !== "shares") dispatch(clearShares());
+    if (typeToKeep !== "metals") dispatch(clearMetals());
+  };
+
+  // Загрузка данных при смене типа
   useEffect(() => {
-    console.log("💡 useEffect called with selectedType:", selectedType);
     switch (selectedType) {
       case "crypto":
         if (cryptoStatus === "idle") dispatch(fetchCrypto());
@@ -48,6 +60,9 @@ const PortfolioBuilder = () => {
       default:
         break;
     }
+    // При смене типа сбрасываем выбранный id и количество
+    setSelectedId("");
+    setQuantity(1);
   }, [
     selectedType,
     cryptoStatus,
@@ -74,7 +89,7 @@ const PortfolioBuilder = () => {
         const id = item.id || item.code || item.ticker;
         const label = `${id}: ${item.name || item.title || item.code || id}`;
         return (
-          <option key={id} value={id}>
+          <option key={`${selectedType}-${id}`} value={id}>
             {label}
           </option>
         );
@@ -114,11 +129,6 @@ const PortfolioBuilder = () => {
     setQuantity(1);
   };
 
-  console.log("🔍 metals:", metals);
-  console.log("🔍 metalsStatus:", metalsStatus);
-  console.log("🔍 selectedType:", selectedType);
-  console.log("🔍 assetList:", assetList);
-
   return (
     <div>
       <h2>🧩 Конструктор портфеля</h2>
@@ -127,8 +137,10 @@ const PortfolioBuilder = () => {
         <select
           value={selectedType}
           onChange={(e) => {
-            setSelectedType(e.target.value);
-            setSelectedId("");
+            const newType = e.target.value;
+            setSelectedType(newType);
+            // Очистка данных для других типов, чтобы не загромождать память
+            clearAllExcept(newType);
           }}
         >
           <option value="crypto">Криптовалюта</option>

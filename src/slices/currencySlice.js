@@ -1,13 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// 1. Асинхронный thunk — для загрузки валют с сервера
 export const fetchCurrency = createAsyncThunk(
   "currency/fetchCurrency",
   async () => {
     const res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
     const data = await res.json();
 
-    // Преобразуем объект валют в массив:
     return Object.entries(data.Valute).map(([code, val]) => ({
       code,
       name: val.Name,
@@ -16,18 +14,22 @@ export const fetchCurrency = createAsyncThunk(
   }
 );
 
-// 2. Начальное состояние
 const initialState = {
   items: [],
-  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: "idle",
   error: null,
 };
 
-// 3. Создаём slice
 const currencySlice = createSlice({
   name: "currency",
   initialState,
-  reducers: {},
+  reducers: {
+    clearItems: (state) => {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCurrency.pending, (state) => {
@@ -45,5 +47,5 @@ const currencySlice = createSlice({
   },
 });
 
-// 4. Экспортируем редьюсер по умолчанию
+export const { clearItems } = currencySlice.actions;
 export default currencySlice.reducer;

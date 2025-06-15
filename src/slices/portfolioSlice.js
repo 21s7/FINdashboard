@@ -1,8 +1,7 @@
-// src/slices/portfolioSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  assets: [], // { type: 'crypto' | 'currency' | 'bond' | 'share', id: 'BTC', name: 'Bitcoin', price: 1000000, quantity: 1 }
+  assets: [], // { type: 'crypto' | 'currency' | 'bond' | 'share', id, name, price, quantity }
 };
 
 const portfolioSlice = createSlice({

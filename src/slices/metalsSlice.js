@@ -14,7 +14,9 @@ const METAL_NAMES = {
 
 export const fetchMetals = createAsyncThunk("metals/fetchMetals", async () => {
   const response = await fetch(
-    `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=${BASE_CURRENCY}&currencies=${METALS.join(",")}`
+    `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=${BASE_CURRENCY}&currencies=${METALS.join(
+      ","
+    )}`
   );
 
   if (!response.ok) {
@@ -28,15 +30,15 @@ export const fetchMetals = createAsyncThunk("metals/fetchMetals", async () => {
   }
 
   const result = METALS.map((symbol) => {
-    const rubPerOunce = 1 / data.rates[symbol]; // RUB → металл
+    const rubPerOunce = 1 / data.rates[symbol];
     const rubPerGram = rubPerOunce / OUNCE_IN_GRAMS;
 
     return {
       id: symbol,
       ticker: symbol,
       name: METAL_NAMES[symbol],
-      price: Number(rubPerGram.toFixed(2)), // ₽/грамм
-      priceUsd: null, // Не используется в этой API
+      price: Number(rubPerGram.toFixed(2)),
+      priceUsd: null,
       lastUpdate: new Date(data.timestamp * 1000).toISOString(),
     };
   });
@@ -51,7 +53,13 @@ const metalsSlice = createSlice({
     status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearItems: (state) => {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMetals.pending, (state) => {
@@ -68,4 +76,5 @@ const metalsSlice = createSlice({
   },
 });
 
+export const { clearItems } = metalsSlice.actions;
 export default metalsSlice.reducer;

@@ -1,7 +1,5 @@
-// slices/sharesSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Асинхронная загрузка акций и цен
 export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
   const securitiesRes = await fetch(
     "https://iss.moex.com/iss/engines/stock/markets/shares/securities.json?iss.meta=off"
@@ -45,15 +43,20 @@ export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
   }));
 });
 
-// Сам Slice
 const sharesSlice = createSlice({
   name: "shares",
   initialState: {
     items: [],
-    status: "idle", // idle | loading | succeeded | failed
+    status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearItems: (state) => {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchShares.pending, (state) => {
@@ -70,4 +73,5 @@ const sharesSlice = createSlice({
   },
 });
 
+export const { clearItems } = sharesSlice.actions;
 export default sharesSlice.reducer;

@@ -1,7 +1,5 @@
-// src/slices/bondsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// 🔁 Асинхронная загрузка данных об облигациях
 export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
   const res = await fetch(
     "https://iss.moex.com/iss/engines/stock/markets/bonds/securities.json?iss.meta=off"
@@ -27,10 +25,16 @@ const bondsSlice = createSlice({
   name: "bonds",
   initialState: {
     items: [],
-    status: "idle", // idle | loading | succeeded | failed
+    status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearItems: (state) => {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchBonds.pending, (state) => {
@@ -47,4 +51,5 @@ const bondsSlice = createSlice({
   },
 });
 
+export const { clearItems } = bondsSlice.actions;
 export default bondsSlice.reducer;
