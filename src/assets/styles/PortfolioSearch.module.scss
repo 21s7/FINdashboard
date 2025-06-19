@@ -1,0 +1,164 @@
+@import "./variables";
+@import "./mixins";
+
+.portfolioSearch {
+  background-color: $dark-bg;
+  padding: 2rem;
+  color: $dark-text-primary;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: $primary-light;
+  }
+}
+
+.searchInput {
+  margin-bottom: 1.5rem;
+
+  input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: $border-radius;
+    border: 1px solid $dark-divider;
+    background-color: $dark-surface;
+    color: $dark-text-primary;
+    font-size: 1rem;
+    transition: $transition;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    }
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+.searchResults {
+  @include card-shadow;
+  border-radius: $border-radius;
+  overflow: hidden;
+  background-color: $dark-surface;
+  max-height: 500px;
+  overflow-y: auto;
+
+  .loading {
+    padding: 1rem;
+    text-align: center;
+    color: $dark-text-secondary;
+  }
+
+  > p {
+    padding: 1rem;
+    text-align: center;
+    color: $dark-text-secondary;
+  }
+}
+
+.assetItem {
+  padding: 1rem;
+  border-bottom: 1px solid $dark-divider;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: $transition;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $dark-surface-hover;
+
+    .assetControls {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.assetInfo {
+  flex: 1;
+
+  .assetName {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: $dark-text-primary;
+  }
+
+  .assetType {
+    font-size: 0.8rem;
+    color: $dark-text-secondary;
+    margin-bottom: 0.3rem;
+  }
+
+  .assetPrice {
+    font-size: 0.9rem;
+    color: $secondary-light;
+  }
+}
+
+.assetControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: $transition;
+
+  .quantityInput {
+    width: 60px;
+    padding: 0.5rem;
+    border-radius: $border-radius;
+    border: 1px solid $dark-divider;
+    background-color: $dark-bg;
+    color: $dark-text-primary;
+    text-align: center;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+
+  .addButton {
+    padding: 0.5rem 1rem;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: $transition;
+    font-weight: 500;
+
+    &:hover {
+      background-color: $primary-dark;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+// Анимации
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}

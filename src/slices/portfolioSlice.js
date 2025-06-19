@@ -1,33 +1,27 @@
+// store/slices/portfolioSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-
-const initialState = {
-  assets: [], // { type: 'crypto' | 'currency' | 'bond' | 'share', id, name, price, quantity }
-};
 
 const portfolioSlice = createSlice({
   name: "portfolio",
-  initialState,
+  initialState: {
+    assets: [],
+  },
   reducers: {
     addAsset: (state, action) => {
-      const { id, type, quantity } = action.payload;
-      const existing = state.assets.find((a) => a.id === id && a.type === type);
-      if (existing) {
-        existing.quantity += quantity;
-      } else {
-        state.assets.push(action.payload);
-      }
+      const newAsset = {
+        ...action.payload,
+        portfolioId: `${action.payload.type}-${action.payload.id}-${Date.now()}`,
+      };
+
+      state.assets.push(newAsset);
     },
+
     removeAsset: (state, action) => {
-      const { id, type } = action.payload;
-      state.assets = state.assets.filter(
-        (a) => !(a.id === id && a.type === type)
-      );
-    },
-    clearPortfolio: (state) => {
-      state.assets = [];
+      const { portfolioId } = action.payload;
+      state.assets = state.assets.filter((a) => a.portfolioId !== portfolioId);
     },
   },
 });
 
-export const { addAsset, removeAsset, clearPortfolio } = portfolioSlice.actions;
+export const { addAsset, removeAsset } = portfolioSlice.actions;
 export default portfolioSlice.reducer;

@@ -1,0 +1,149 @@
+.portfolioSearch {
+  background-color: #121212;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.87);
+}
+.portfolioSearch h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #768fff;
+}
+
+.searchInput {
+  margin-bottom: 1.5rem;
+}
+.searchInput input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #1e1e1e;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.searchInput input:focus {
+  outline: none;
+  border-color: #2962ff;
+  box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.2);
+}
+.searchInput input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.searchInput input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.searchResults {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #1e1e1e;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.searchResults:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.searchResults .loading {
+  padding: 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+.searchResults > p {
+  padding: 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.assetItem {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.assetItem:hover {
+  background-color: #2a2a2a;
+}
+.assetItem:hover .assetControls {
+  opacity: 1;
+  transform: translateX(0);
+}
+.assetItem:last-child {
+  border-bottom: none;
+}
+
+.assetInfo {
+  flex: 1;
+}
+.assetInfo .assetName {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  color: rgba(255, 255, 255, 0.87);
+}
+.assetInfo .assetType {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.3rem;
+}
+.assetInfo .assetPrice {
+  font-size: 0.9rem;
+  color: #5efc82;
+}
+
+.assetControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.assetControls .quantityInput {
+  width: 60px;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #121212;
+  color: rgba(255, 255, 255, 0.87);
+  text-align: center;
+}
+.assetControls .quantityInput:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+.assetControls .addButton {
+  padding: 0.5rem 1rem;
+  background-color: #2962ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+}
+.assetControls .addButton:hover {
+  background-color: #0039cb;
+}
+.assetControls .addButton:active {
+  transform: scale(0.95);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pulse {
+  animation: pulse 2s infinite;
+}/*# sourceMappingURL=PortfolioSearch.module.css.map */
