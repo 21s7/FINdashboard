@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset } from "../slices/portfolioSlice";
 import styles from "../assets/styles/Portfolio.module.scss";
+import PortfolioStats from "./PortfolioStats"; // новый импорт
 
 // Форматирование чисел и процентов
 const formatCurrency = (num, suffix = "₽") =>
@@ -70,12 +71,7 @@ const Portfolio = () => {
     <div className={styles.portfolioView}>
       <div className={styles.header}>
         <h1 className={styles.title}>Мой Портфель</h1>
-        <div className={styles.totalValue}>
-          <span className={styles.totalLabel}>Общая стоимость</span>
-          <span className={styles.totalAmount}>
-            {formatCurrency(totalPortfolioValue)}
-          </span>
-        </div>
+        <PortfolioStats assets={portfolioAssets} />
       </div>
 
       <div className={styles.portfolioGrid}>

@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
 export const fetchCurrency = createAsyncThunk(
   "currency/fetchCurrency",
   async () => {
@@ -7,9 +6,14 @@ export const fetchCurrency = createAsyncThunk(
     const data = await res.json();
 
     return Object.entries(data.Valute).map(([code, val]) => ({
-      code,
+      id: code, // Уникальный идентификатор
+      ticker: code, // Для единообразия с другими активами
+      code, // Сохраняем оригинальный код
       name: val.Name,
-      value: val.Value.toFixed(2),
+      price: val.Value, // Основное поле для цены (унифицированное)
+      nominal: val.Nominal, // Номинал (например, 1 для USD, 10 для CNY)
+      value: val.Value, // Оставляем для обратной совместимости
+      type: "currency", // Явно указываем тип
     }));
   }
 );
