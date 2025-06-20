@@ -4,81 +4,257 @@
 .portfolioView {
   background-color: $dark-bg;
   color: $dark-text-primary;
-  padding: 2rem;
+  padding: 1.5rem;
   min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $dark-divider;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }
 
 .title {
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  color: $primary-light;
-  position: relative;
-  padding-bottom: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: $dark-text-primary;
+  letter-spacing: -0.02em;
+}
 
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(90deg, $primary-color, transparent);
+.totalValue {
+  text-align: right;
+
+  @media (max-width: 768px) {
+    text-align: left;
   }
+}
+
+.totalLabel {
+  display: block;
+  font-size: 0.875rem;
+  color: $dark-text-secondary;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.totalAmount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $secondary-color;
+  letter-spacing: -0.01em;
+}
+
+.portfolioGrid {
+  display: grid;
+  gap: 2rem;
 }
 
 .assetGroup {
-  margin-bottom: 2.5rem;
+  background-color: $dark-surface;
+  border-radius: 12px;
+  overflow: hidden;
+  @include card-shadow;
   @include fade-in;
+  transition: $transition;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  color: white;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+.groupInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.groupIcon {
+  font-size: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
 }
 
 .groupTitle {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: $secondary-light;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  @include card-shadow;
+.groupTotal {
+  text-align: right;
 
-  thead {
-    background-color: $primary-dark;
-    color: white;
-
-    th {
-      padding: 1rem;
-      text-align: left;
-      font-weight: 500;
-    }
-  }
-
-  tbody {
-    tr {
-      background-color: $dark-surface;
-      border-bottom: 1px solid $dark-divider;
-      transition: $transition;
-
-      &:hover {
-        background-color: $dark-surface-hover;
-      }
-
-      td {
-        padding: 1rem;
-        color: $dark-text-primary;
-
-        &:last-child {
-          text-align: right;
-        }
-      }
-    }
+  @media (max-width: 768px) {
+    text-align: left;
   }
 }
 
-.row {
+.groupTotalAmount {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.groupCount {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.assetList {
+  padding: 0;
+}
+
+.assetCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $dark-divider;
+  transition: $transition;
+  position: relative;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
   &:hover {
     background-color: $dark-surface-hover;
+
+    .removeButton {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+.assetInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.assetName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $dark-text-primary;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.assetDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: $dark-text-secondary;
+}
+
+.quantity {
+  font-weight: 500;
+}
+
+.separator {
+  opacity: 0.5;
+}
+
+.unitPrice {
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+}
+
+.assetValues {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  @media (max-width: 768px) {
+    text-align: left;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.totalValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $dark-text-primary;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+}
+
+.change {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.875rem;
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+}
+
+.changeValue {
+  font-weight: 600;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+}
+
+.changePercent {
+  font-weight: 500;
+}
+
+.positive {
+  color: $secondary-color;
+}
+
+.negative {
+  color: $error-color;
+}
+
+.neutral {
+  color: $dark-text-secondary;
+}
+
+.noChange {
+  font-size: 0.875rem;
+  color: $dark-text-secondary;
 }
 
 .removeButton {
@@ -86,19 +262,121 @@
   border: none;
   color: $error-color;
   cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
   transition: $transition;
+  opacity: 0;
+  transform: scale(0.8);
+  margin-left: 1rem;
 
   &:hover {
-    color: darken($error-color, 10%);
-    transform: scale(1.1);
+    background-color: rgba($error-color, 0.1);
+    color: lighten($error-color, 10%);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    opacity: 1;
+    transform: scale(1);
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
   }
 }
 
-.emptyMessage {
+.emptyState {
   text-align: center;
-  padding: 2rem;
+  padding: 4rem 2rem;
+  background-color: $dark-surface;
+  border-radius: 12px;
+  @include card-shadow;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $dark-text-primary;
+  margin: 0 0 1rem 0;
+}
+
+.emptyMessage {
+  font-size: 1rem;
   color: $dark-text-secondary;
-  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+// Адаптивность
+@media (max-width: 480px) {
+  .portfolioView {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .totalAmount {
+    font-size: 1.5rem;
+  }
+
+  .groupHeader {
+    padding: 1rem;
+  }
+
+  .assetCard {
+    padding: 1rem;
+  }
+}
+
+// Анимации
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.assetCard {
+  animation: slideIn 0.3s ease-out;
+}
+
+// Индикатор загрузки для значений
+.loading {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }

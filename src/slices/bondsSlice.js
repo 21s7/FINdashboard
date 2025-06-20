@@ -1,44 +1,27 @@
+// bondsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
-  // Запрашиваем базовую информацию об облигациях
-  const securitiesRes = await fetch(
-    "https://iss.moex.com/iss/engines/stock/markets/bonds/securities.json?iss.meta=off&securities.columns=SECID,SECNAME"
+  const res = await fetch(
+    "https://iss.moex.com/iss/engines/stock/markets/bonds/securities.json?iss.meta=off"
   );
-  const securitiesData = await securitiesRes.json();
+  const data = await res.json();
 
-  // Запрашиваем только последние цены (без FACEVALUE)
-  const marketdataRes = await fetch(
-    "https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST"
-  );
-  const marketdataData = await marketdataRes.json();
+  const cols = data.securities.columns;
+  const rows = data.securities.data;
+  const secIdIndex = cols.indexOf("SECID");
+  const nameIndex = cols.indexOf("SECNAME");
+  const priceIndex = cols.indexOf("PREVPRICE");
 
-  // Обрабатываем данные об облигациях
-  const securities = securitiesData.securities.data.map(([secId, secName]) => ({
-    ticker: secId,
-    name: secName,
-  }));
+  const bondList = rows
+    .map((row) => ({
+      ticker: row[secIdIndex],
+      name: row[nameIndex],
+      pricePercent: row[priceIndex] ? parseFloat(row[priceIndex]) : 100, // Добавляем числовое значение
+    }))
+    .filter((a) => a.ticker && a.name);
 
-  // Создаем карту цен
-  const priceMap = {};
-  marketdataData.marketdata.data.forEach(([secId, last]) => {
-    if (secId && last !== null) {
-      priceMap[secId] = {
-        lastPrice: last,
-        // Для облигаций MOEX цена LAST уже в % от номинала
-        pricePercent: last.toFixed(2),
-      };
-    }
-  });
-
-  // Объединяем данные
-  return securities.map((bond) => ({
-    ...bond,
-    ...(priceMap[bond.ticker] || {
-      lastPrice: null,
-      pricePercent: null,
-    }),
-  }));
+  return bondList;
 });
 
 const bondsSlice = createSlice({

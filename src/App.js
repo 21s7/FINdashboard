@@ -16,7 +16,7 @@ function App() {
       <Bonds />
       <Shares />
       <PreciousMetals />
-      <hr />
+
       <PortfolioSearch />
       <Portfolio />
     </div>
