@@ -1,20 +1,44 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
 export const fetchCurrency = createAsyncThunk(
   "currency/fetchCurrency",
   async () => {
     const res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
     const data = await res.json();
 
-    return Object.entries(data.Valute).map(([code, val]) => ({
-      id: code, // Уникальный идентификатор
-      ticker: code, // Для единообразия с другими активами
-      code, // Сохраняем оригинальный код
-      name: val.Name,
-      price: val.Value, // Основное поле для цены (унифицированное)
-      nominal: val.Nominal, // Номинал (например, 1 для USD, 10 для CNY)
-      value: val.Value, // Оставляем для обратной совместимости
-      type: "currency", // Явно указываем тип
-    }));
+    const currencies = Object.entries(data.Valute).map(([code, val]) => {
+      const dayChangePercent =
+        val.Previous && val.Previous !== 0
+          ? +(((val.Value - val.Previous) / val.Previous) * 100).toFixed(2)
+          : 0;
+
+      return {
+        id: code, // Уникальный идентификатор
+        ticker: code, // Для единообразия с другими активами
+        code,
+        name: val.Name,
+        price: val.Value,
+        nominal: val.Nominal,
+        value: val.Value,
+        yearChangePercent: dayChangePercent, // дневное изменение %
+        type: "currency",
+      };
+    });
+
+    // Добавляем российский рубль вручную с 0 изменением
+    currencies.unshift({
+      id: "RUB",
+      ticker: "RUB",
+      code: "RUB",
+      name: "Российский рубль",
+      price: 1,
+      nominal: 1,
+      value: 1,
+      yearChangePercent: 0,
+      type: "currency",
+    });
+
+    return currencies;
   }
 );
 

@@ -1,46 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
-  const securitiesRes = await fetch(
-    "https://iss.moex.com/iss/engines/stock/markets/shares/securities.json?iss.meta=off"
-  );
-  const securitiesData = await securitiesRes.json();
+  const [securitiesRes, marketDataRes] = await Promise.all([
+    fetch(
+      "https://iss.moex.com/iss/engines/stock/markets/shares/securities.json?iss.meta=off"
+    ),
+    fetch(
+      "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,SECNAME,LAST,LASTTOPREVPRICE"
+    ),
+  ]);
 
-  const pricesRes = await fetch(
-    "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&iss.only=marketdata"
-  );
-  const pricesData = await pricesRes.json();
+  const [securitiesData, marketData] = await Promise.all([
+    securitiesRes.json(),
+    marketDataRes.json(),
+  ]);
 
+  // Получаем данные из marketdata
+  const marketDataCols = marketData.marketdata.columns;
+  const marketDataRows = marketData.marketdata.data;
+
+  const secIdIndex = marketDataCols.indexOf("SECID");
+  const nameIndex = marketDataCols.indexOf("SECNAME");
+  const priceIndex = marketDataCols.indexOf("LAST");
+  const yearChangeIndex = marketDataCols.indexOf("LASTTOPREVPRICE");
+
+  // Создаем маппинг тикеров к именам из securities
   const secCols = securitiesData.securities.columns;
   const secRows = securitiesData.securities.data;
-  const secIdIndex = secCols.indexOf("SECID");
-  const nameIndex = secCols.indexOf("SECNAME");
-
-  const allStocks = secRows
-    .map((row) => ({
-      ticker: row[secIdIndex],
-      name: row[nameIndex],
-    }))
-    .filter((a) => a.ticker && a.name);
-
-  const quoteCols = pricesData.marketdata.columns;
-  const quoteRows = pricesData.marketdata.data;
-  const quoteIdIndex = quoteCols.indexOf("SECID");
-  const priceIndex = quoteCols.indexOf("LAST");
-
-  const priceMap = {};
-  quoteRows.forEach((row) => {
-    const ticker = row[quoteIdIndex];
-    const price = row[priceIndex];
-    if (ticker && price !== null) {
-      priceMap[ticker] = price;
-    }
+  const nameMap = {};
+  secRows.forEach((row) => {
+    nameMap[row[secCols.indexOf("SECID")]] = row[secCols.indexOf("SECNAME")];
   });
 
-  return allStocks.map((stock) => ({
-    ...stock,
-    price: priceMap[stock.ticker] ?? "—",
-  }));
+  return marketDataRows
+    .map((row) => {
+      const ticker = row[secIdIndex];
+      const price = row[priceIndex];
+      const yearChange = row[yearChangeIndex];
+
+      // LASTTOPREVPRICE уже содержит процентное изменение
+      const yearChangePercent = typeof yearChange === "number" ? yearChange : 0;
+
+      return {
+        ticker,
+        name: nameMap[ticker] || row[nameIndex],
+        price: price || "—",
+        yearChangeValue: 0, // Можно рассчитать при необходимости
+        yearChangePercent: parseFloat(yearChangePercent.toFixed(2)),
+        type: "share",
+      };
+    })
+    .filter((asset) => asset.ticker && asset.name);
 });
 
 const sharesSlice = createSlice({

@@ -3,38 +3,29 @@ import { useSelector, useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 import styles from "../assets/styles/PortfolioSearch.module.scss";
 
-// Debounce-хук
+const formatPercentage = (value) => {
+  if (value === undefined || value === null) return "—";
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
+};
+
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
-
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
   }, [value, delay]);
-
   return debouncedValue;
 };
 
 const getAssetTypeInRussian = (type) => {
-  switch (type) {
-    case "share":
-      return "Акции";
-    case "bond":
-      return "Облигации";
-    case "currency":
-      return "Валюты";
-    case "crypto":
-      return "Криптовалюты";
-    case "metal":
-      return "Драгоценные металлы";
-    default:
-      return type;
-  }
+  const types = {
+    share: "Акции",
+    bond: "Облигации",
+    currency: "Валюты",
+    crypto: "Криптовалюты",
+    metal: "Драгоценные металлы",
+  };
+  return types[type] || type;
 };
 
 const PortfolioSearch = () => {
@@ -43,7 +34,7 @@ const PortfolioSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [filteredAssets, setFilteredAssets] = useState([]);
-  const [quantities, setQuantities] = useState();
+  const [quantities, setQuantities] = useState({});
   const [hoveredAsset, setHoveredAsset] = useState(null);
 
   const { shares, bonds, currency, crypto, metals } = useSelector((state) => ({
@@ -91,20 +82,17 @@ const PortfolioSearch = () => {
     }
 
     setIsLoading(true);
-
     const timeout = setTimeout(() => {
       const searchLower = debouncedSearchTerm.toLowerCase();
       const results = allAssets
         .filter((asset) => {
-          const nameMatch = asset.name.toLowerCase().includes(searchLower);
-          const tickerMatch =
-            asset.ticker && asset.ticker.toLowerCase().includes(searchLower);
-          const codeMatch =
-            asset.code && asset.code.toLowerCase().includes(searchLower);
-          const idMatch =
-            asset.id && asset.id.toLowerCase().includes(searchLower);
-
-          return nameMatch || tickerMatch || codeMatch || idMatch;
+          const matches = [
+            asset.name?.toLowerCase().includes(searchLower),
+            asset.ticker?.toLowerCase().includes(searchLower),
+            asset.code?.toLowerCase().includes(searchLower),
+            asset.id?.toLowerCase().includes(searchLower),
+          ];
+          return matches.some(Boolean);
         })
         .slice(0, 50)
         .map((asset) => ({
@@ -113,19 +101,16 @@ const PortfolioSearch = () => {
           typeRussian: getAssetTypeInRussian(asset.type),
         }));
 
-      // Инициализируем количества для новых активов
       const newQuantities = { ...quantities };
       results.forEach((asset) => {
         const key = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
-        if (!newQuantities[key]) {
-          newQuantities[key] = 1;
-        }
+        if (!newQuantities[key]) newQuantities[key] = 1;
       });
       setQuantities(newQuantities);
 
       setFilteredAssets(results);
       setIsLoading(false);
-    }, 0);
+    }, 200);
 
     return () => clearTimeout(timeout);
   }, [debouncedSearchTerm, allAssets, formatPrice]);
@@ -138,7 +123,7 @@ const PortfolioSearch = () => {
   const handleQuantityChange = useCallback((key, value) => {
     setQuantities((prev) => ({
       ...prev,
-      [key]: Math.max(1, value),
+      [key]: Math.max(1, Number(value) || 1),
     }));
   }, []);
 
@@ -147,14 +132,14 @@ const PortfolioSearch = () => {
       const key = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
       const quantity = quantities[key] || 1;
 
-      if (quantity > 0) {
-        dispatch(
-          addAsset({
-            ...asset,
-            quantity: Number(quantity),
-          })
-        );
-      }
+      dispatch(
+        addAsset({
+          ...asset,
+          quantity,
+          yearChangeValue: asset.yearChangeValue || 0,
+          yearChangePercent: asset.yearChangePercent || 0,
+        })
+      );
     },
     [quantities, dispatch]
   );
@@ -162,7 +147,6 @@ const PortfolioSearch = () => {
   return (
     <div className={styles.portfolioSearch}>
       <h2>Поиск активов</h2>
-
       <div className={styles.searchInput}>
         <input
           type="text"
@@ -178,15 +162,16 @@ const PortfolioSearch = () => {
             <p className={styles.loading}>Загрузка...</p>
           ) : filteredAssets.length > 0 ? (
             <ul>
-              {filteredAssets.map((asset) => {
-                const key = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
-                const quantity = quantities[key] || 1;
+              {filteredAssets.map((asset, index) => {
+                const assetKey = `${asset.type}-${asset.ticker || asset.code || asset.id}-${index}`;
+                const quantityKey = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
+                const quantity = quantities[quantityKey] || 1;
 
                 return (
                   <li
-                    key={key}
+                    key={assetKey}
                     className={styles.assetItem}
-                    onMouseEnter={() => setHoveredAsset(key)}
+                    onMouseEnter={() => setHoveredAsset(assetKey)}
                     onMouseLeave={() => setHoveredAsset(null)}
                   >
                     <div className={styles.assetInfo}>
@@ -199,17 +184,28 @@ const PortfolioSearch = () => {
                       <div className={styles.assetPrice}>
                         {asset.displayPrice}
                       </div>
+                      <div
+                        className={`${styles.assetChange} ${
+                          asset.yearChangePercent > 0
+                            ? styles.positive
+                            : asset.yearChangePercent < 0
+                              ? styles.negative
+                              : ""
+                        }`}
+                      >
+                        за день {formatPercentage(asset.yearChangePercent)}
+                      </div>
                     </div>
 
                     {asset.displayPrice !== "не торгуется" &&
-                      hoveredAsset === key && (
+                      hoveredAsset === assetKey && (
                         <div className={styles.assetControls}>
                           <input
                             type="number"
                             min="1"
                             value={quantity}
                             onChange={(e) =>
-                              handleQuantityChange(key, e.target.value)
+                              handleQuantityChange(quantityKey, e.target.value)
                             }
                             className={styles.quantityInput}
                           />

@@ -1,19 +1,19 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeAsset } from "../slices/portfolioSlice";
+import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
 import styles from "../assets/styles/Portfolio.module.scss";
-import PortfolioStats from "./PortfolioStats"; // новый импорт
+import PortfolioStats from "./PortfolioStats";
 
-// Форматирование чисел и процентов
 const formatCurrency = (num, suffix = "₽") =>
   typeof num === "number"
     ? num.toLocaleString("ru-RU", { minimumFractionDigits: 2 }) + ` ${suffix}`
     : "—";
 
-const formatPercentage = (value) =>
-  `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
+const formatPercentage = (value) => {
+  if (value === undefined || value === null) return "—";
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
+};
 
-// Группировка активов по типу
 const groupByType = (assets) => {
   const groups = {};
   assets.forEach((a) => {
@@ -23,7 +23,6 @@ const groupByType = (assets) => {
   return groups;
 };
 
-// Названия типов на русском
 const typeNames = {
   share: "Акции",
   bond: "Облигации",
@@ -32,7 +31,6 @@ const typeNames = {
   metal: "Драгоценные металлы",
 };
 
-// Иконки для типов активов
 const typeIcons = {
   share: "📈",
   bond: "📊",
@@ -44,25 +42,45 @@ const typeIcons = {
 const Portfolio = () => {
   const dispatch = useDispatch();
   const portfolioAssets = useSelector((state) => state.portfolio.assets);
+  const sharesData = useSelector((state) => state.shares.items);
+
+  // Обновляем статистику при изменении данных
+  useEffect(() => {
+    portfolioAssets.forEach((asset) => {
+      if (asset.type === "share") {
+        const shareData = sharesData.find((s) => s.ticker === asset.ticker);
+        if (
+          shareData &&
+          (shareData.yearChangePercent !== asset.yearChangePercent ||
+            shareData.yearChangeValue !== asset.yearChangeValue)
+        ) {
+          dispatch(
+            updateAssetStats({
+              portfolioId: asset.portfolioId,
+              yearChangeValue: shareData.yearChangeValue,
+              yearChangePercent: shareData.yearChangePercent,
+            })
+          );
+        }
+      }
+    });
+  }, [sharesData, portfolioAssets, dispatch]);
 
   const grouped = useMemo(
     () => groupByType(portfolioAssets),
     [portfolioAssets]
   );
 
-  // Подсчет общей стоимости портфеля
   const totalPortfolioValue = useMemo(() => {
     return portfolioAssets.reduce((total, asset) => {
       const unitPrice =
         asset.type === "bond"
           ? asset.pricePercent
           : asset.price || asset.value || 0;
-
       const assetTotal =
         asset.type === "bond"
           ? (unitPrice / 100) * asset.quantity * 1000
           : unitPrice * asset.quantity;
-
       return total + assetTotal;
     }, 0);
   }, [portfolioAssets]);
@@ -81,12 +99,10 @@ const Portfolio = () => {
               asset.type === "bond"
                 ? asset.pricePercent
                 : asset.price || asset.value || 0;
-
             const assetTotal =
               asset.type === "bond"
                 ? (unitPrice / 100) * asset.quantity * 1000
                 : unitPrice * asset.quantity;
-
             return sum + assetTotal;
           }, 0);
 
@@ -115,14 +131,10 @@ const Portfolio = () => {
                     asset.type === "bond"
                       ? asset.pricePercent
                       : asset.price || asset.value || 0;
-
                   const total =
                     asset.type === "bond"
                       ? (unitPrice / 100) * asset.quantity * 1000
                       : unitPrice * asset.quantity;
-
-                  const isPositive = asset.yearChangePercent > 0;
-                  const isNegative = asset.yearChangePercent < 0;
 
                   return (
                     <div key={asset.portfolioId} className={styles.assetCard}>
@@ -150,27 +162,17 @@ const Portfolio = () => {
                         <div className={styles.totalValue}>
                           {formatCurrency(total)}
                         </div>
-                        {asset.yearChangeValue !== undefined &&
-                        asset.yearChangePercent !== undefined ? (
-                          <div
-                            className={`${styles.change} ${
-                              isPositive
-                                ? styles.positive
-                                : isNegative
-                                  ? styles.negative
-                                  : styles.neutral
-                            }`}
-                          >
-                            <span className={styles.changeValue}>
-                              {formatCurrency(asset.yearChangeValue)}
-                            </span>
-                            <span className={styles.changePercent}>
-                              ({formatPercentage(asset.yearChangePercent)})
-                            </span>
-                          </div>
-                        ) : (
-                          <div className={styles.noChange}>—</div>
-                        )}
+                        <div
+                          className={`${styles.change} ${
+                            asset.yearChangePercent > 0
+                              ? styles.positive
+                              : asset.yearChangePercent < 0
+                                ? styles.negative
+                                : styles.neutral
+                          }`}
+                        >
+                          за день {formatPercentage(asset.yearChangePercent)}
+                        </div>
                       </div>
 
                       <button
