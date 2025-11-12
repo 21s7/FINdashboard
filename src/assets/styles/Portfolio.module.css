@@ -286,7 +286,7 @@
 }
 .removeButton:hover {
   background-color: rgba(255, 61, 0, 0.1);
-  color: #ff6433;
+  color: rgb(255, 99.8, 51);
 }
 .removeButton:active {
   transform: scale(0.95);
