@@ -1,3 +1,4 @@
+// src/components/PortfolioStats.jsx
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -22,7 +23,10 @@ const COLORS = [
   "#ef4444",
   "#8b5cf6",
   "#ec4899",
+  "#a3a3a3",
+  "#f87171",
 ];
+
 const CURRENCY_SYMBOLS = {
   rub: "₽",
   usd: "$",
@@ -41,7 +45,7 @@ const typeLabels = {
 
 const PortfolioStats = ({ assets }) => {
   const [currency, setCurrency] = useState("rub");
-  const [chartType, setChartType] = useState("pie"); // 'pie' | 'bar'
+  const [chartType, setChartType] = useState("pie");
   const exchangeRates = useSelector((state) => state.currency.items);
 
   const getRateToRub = (code) => {
@@ -61,12 +65,10 @@ const PortfolioStats = ({ assets }) => {
         asset.type === "bond"
           ? asset.pricePercent
           : asset.price || asset.value || 0;
-
       const total =
         asset.type === "bond"
           ? (unitPrice / 100) * asset.quantity * 1000
           : unitPrice * asset.quantity;
-
       return sum + total;
     }, 0);
   }, [assets]);
@@ -89,7 +91,6 @@ const PortfolioStats = ({ assets }) => {
         asset.type === "bond"
           ? asset.pricePercent
           : asset.price || asset.value || 0;
-
       const total =
         asset.type === "bond"
           ? (price / 100) * asset.quantity * 1000
@@ -141,36 +142,54 @@ const PortfolioStats = ({ assets }) => {
 
       <div className={styles.chartArea}>
         {chartType === "pie" ? (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={100}
+                outerRadius={110}
+                innerRadius={50}
                 dataKey="value"
+                isAnimationActive={false}
               >
                 {chartData.map((entry, index) => (
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip formatter={(val) => formatCurrency(val)} />
-              <Legend />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                layout="horizontal"
+                wrapperStyle={{
+                  fontSize: "14px",
+                  maxWidth: "90%",
+                  margin: "0 auto",
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 10, right: 10, bottom: 60, left: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis
+                dataKey="name"
+                interval={0}
+                angle={-30}
+                textAnchor="end"
+                tick={{ fontSize: 12 }}
+                height={60}
+              />
               <YAxis />
               <Tooltip formatter={(val) => formatCurrency(val)} />
               <Legend />
-              <Bar dataKey="value" fill="#3b82f6" />
+              <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
