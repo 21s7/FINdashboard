@@ -1,1 +1,1 @@
-{"version":3,"sources":[],"names":[],"mappings":"","file":"PortfolioStats.module.css"}
+{"version":3,"sources":["PortfolioStats.module.scss","PortfolioStats.module.css"],"names":[],"mappings":"AAGA;EACE,eAAA;EACA,gBAAA;EACA,qDAAA;EACA,6BAAA;EACA,oCAAA;EACA,qBAAA;EACA,uBAAA;EACA,cAAA;EACA,+CAAA;EACA,cAAA;ACFF;ADIE;EAZF;IAaI,kBAAA;ECDF;AACF;ADGE;EAhBF;IAiBI,kBAAA;ECAF;AACF","file":"PortfolioStats.module.css"}

@@ -2,163 +2,254 @@
 @import "./mixins";
 
 .portfolioSearch {
-  background-color: $dark-bg;
-  padding: 2rem;
-  color: $dark-text-primary;
+  background: $dark-bg;
+  padding: 1.5rem;
+  border-radius: $border-radius-lg;
+  margin-bottom: 1.5rem;
 
   h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: $primary-light;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $dark-text-primary;
+    margin-bottom: 1.25rem;
   }
 }
 
 .searchInput {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 
   input {
     width: 100%;
-    padding: 0.8rem 1rem;
+    padding: 0.75rem 1rem;
+    background: $dark-surface;
+    border: 1px solid $dark-border;
     border-radius: $border-radius;
-    border: 1px solid $dark-divider;
-    background-color: $dark-surface;
     color: $dark-text-primary;
-    font-size: 1rem;
-    transition: $transition;
+    font-size: 0.95rem;
 
     &:focus {
-      outline: none;
       border-color: $primary-color;
-      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
     }
 
     &::placeholder {
-      color: $dark-text-secondary;
+      color: $dark-text-tertiary;
     }
   }
 }
 
 .searchResults {
-  @include card-shadow;
+  background: $dark-surface;
+  border: 1px solid $dark-border;
   border-radius: $border-radius;
-  overflow: hidden;
-  background-color: $dark-surface;
-  max-height: 500px;
+  max-height: 400px;
   overflow-y: auto;
+  @include card-shadow;
 
-  .loading {
-    padding: 1rem;
-    text-align: center;
-    color: $dark-text-secondary;
-  }
-
+  .loading,
   > p {
-    padding: 1rem;
+    padding: 1.5rem;
     text-align: center;
     color: $dark-text-secondary;
+    font-size: 0.95rem;
   }
 }
 
 .assetItem {
-  padding: 1rem;
-  border-bottom: 1px solid $dark-divider;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid $dark-divider;
   transition: $transition;
-  cursor: pointer;
-
-  &:hover {
-    background-color: $dark-surface-hover;
-
-    .assetControls {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+  gap: 1rem;
 
   &:last-child {
     border-bottom: none;
+  }
+
+  &:hover {
+    background: $dark-surface-hover;
   }
 }
 
 .assetInfo {
   flex: 1;
+  min-width: 0;
 
   .assetName {
     font-weight: 500;
-    margin-bottom: 0.3rem;
     color: $dark-text-primary;
+    margin-bottom: 0.25rem;
+    @include truncate;
   }
 
   .assetType {
     font-size: 0.8rem;
     color: $dark-text-secondary;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.25rem;
   }
 
   .assetPrice {
     font-size: 0.9rem;
-    color: $secondary-light;
+    color: $primary-color;
+    font-weight: 500;
+  }
+
+  .assetChange {
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    &.positive {
+      color: $secondary-color;
+    }
+
+    &.negative {
+      color: $error-color;
+    }
   }
 }
 
 .assetControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: $transition;
+  gap: 0.75rem;
+  flex-shrink: 0;
 
   .quantityInput {
-    width: 60px;
+    width: 70px;
     padding: 0.5rem;
-    border-radius: $border-radius;
-    border: 1px solid $dark-divider;
-    background-color: $dark-bg;
+    background: $dark-bg;
+    border: 1px solid $dark-border;
+    border-radius: $border-radius-sm;
     color: $dark-text-primary;
     text-align: center;
+    font-size: 0.9rem;
 
     &:focus {
-      outline: none;
       border-color: $primary-color;
     }
   }
 
   .addButton {
     padding: 0.5rem 1rem;
-    background-color: $primary-color;
+    background: $primary-color;
     color: white;
     border: none;
-    border-radius: $border-radius;
-    cursor: pointer;
-    transition: $transition;
+    border-radius: $border-radius-sm;
+    font-size: 0.9rem;
     font-weight: 500;
+    transition: $transition;
 
     &:hover {
-      background-color: $primary-dark;
+      background: $primary-dark;
     }
 
     &:active {
-      transform: scale(0.95);
+      transform: scale(0.98);
     }
   }
 }
 
-// Анимации
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
+.depositForm,
+.selectInput {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  input,
+  select {
+    padding: 0.75rem;
+    background: $dark-surface;
+    border: 1px solid $dark-border;
+    border-radius: $border-radius-sm;
+    color: $dark-text-primary;
+    font-size: 0.95rem;
+
+    &:focus {
+      border-color: $primary-color;
+    }
   }
 }
 
-.pulse {
-  animation: pulse 2s infinite;
+.addButton {
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 1px solid $dark-border;
+  border-radius: $border-radius;
+  color: $dark-text-primary;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: $dark-surface-hover;
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+// Анимация появления результатов
+.searchResults {
+  @include fade-in;
+}
+
+.assetItem {
+  @include smooth-appear;
+  animation-duration: 0.2s;
+}
+
+// Стили для кнопок в формах
+.formButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  button {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: $transition;
+    cursor: pointer;
+
+    &:first-child {
+      background: $primary-color;
+      color: white;
+
+      &:hover {
+        background: $primary-dark;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    &:last-child {
+      background: transparent;
+      border: 1px solid $dark-border;
+      color: $dark-text-secondary;
+
+      &:hover {
+        background: $dark-surface-hover;
+        border-color: $dark-text-tertiary;
+        color: $dark-text-primary;
+      }
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 }

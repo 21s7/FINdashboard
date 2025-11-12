@@ -1,1 +1,22 @@
-/*# sourceMappingURL=PortfolioStats.module.css.map */
+.totalAmount {
+  font-size: 4rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  display: block;
+}
+@media (max-width: 768px) {
+  .totalAmount {
+    font-size: 3.25rem;
+  }
+}
+@media (max-width: 480px) {
+  .totalAmount {
+    font-size: 2.75rem;
+  }
+}/*# sourceMappingURL=PortfolioStats.module.css.map */

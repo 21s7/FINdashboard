@@ -77,7 +77,7 @@ const DepositForm = () => {
             onChange={(e) => setMonths(e.target.value)}
           />
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <div className={styles.formButtons}>
             <button onClick={handleAddDeposit}>Добавить</button>
             <button onClick={() => setIsOpen(false)}>Отмена</button>
           </div>

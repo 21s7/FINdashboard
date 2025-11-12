@@ -14,7 +14,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import styles from "../assets/styles/Portfolio.module.scss";
+import styles from "../assets/styles/PortfolioStats.module.scss"; // убедитесь, что путь правильный
 
 const COLORS = [
   "#3b82f6",
@@ -61,6 +61,10 @@ const PortfolioStats = ({ assets }) => {
 
   const totalValue = useMemo(() => {
     return assets.reduce((sum, asset) => {
+      if (asset.type === "deposit") {
+        return sum + (asset.value || 0);
+      }
+
       const unitPrice =
         asset.type === "bond"
           ? asset.pricePercent
@@ -87,14 +91,19 @@ const PortfolioStats = ({ assets }) => {
   const chartData = useMemo(() => {
     const sums = {};
     assets.forEach((asset) => {
-      const price =
-        asset.type === "bond"
-          ? asset.pricePercent
-          : asset.price || asset.value || 0;
-      const total =
-        asset.type === "bond"
-          ? (price / 100) * asset.quantity * 1000
-          : price * asset.quantity;
+      let total = 0;
+      if (asset.type === "deposit") {
+        total = asset.value || 0;
+      } else {
+        const price =
+          asset.type === "bond"
+            ? asset.pricePercent
+            : asset.price || asset.value || 0;
+        total =
+          asset.type === "bond"
+            ? (price / 100) * asset.quantity * 1000
+            : price * asset.quantity;
+      }
 
       if (!sums[asset.type]) sums[asset.type] = 0;
       sums[asset.type] += total;
@@ -108,7 +117,7 @@ const PortfolioStats = ({ assets }) => {
 
   return (
     <div className={styles.statsContainer}>
-      <div className={styles.totalValue}>
+      <div className={styles.totalValueSection}>
         <span className={styles.totalLabel}>Общая стоимость</span>
         <span className={styles.totalAmount}>
           {formatCurrency(convertedTotal)}

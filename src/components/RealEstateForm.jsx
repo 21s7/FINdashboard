@@ -89,7 +89,7 @@ const RealEstateForm = () => {
             </option>
           </select>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <div className={styles.formButtons}>
             <button onClick={handleAddRealEstate}>Добавить</button>
             <button onClick={() => setIsOpen(false)}>Отмена</button>
           </div>
