@@ -35,6 +35,8 @@ const typeLabels = {
   currency: "Валюты",
   crypto: "Криптовалюты",
   metal: "Металлы",
+  deposit: "Депозиты",
+  realestate: "Недвижимость",
 };
 
 const PortfolioStats = ({ assets }) => {

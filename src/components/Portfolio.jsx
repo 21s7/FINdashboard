@@ -1,3 +1,4 @@
+// src/components/Portfolio.jsx
 import React, { useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
@@ -29,6 +30,8 @@ const typeNames = {
   currency: "Валюты",
   crypto: "Криптовалюты",
   metal: "Драгоценные металлы",
+  deposit: "Депозиты",
+  realestate: "Недвижимость",
 };
 
 const typeIcons = {
@@ -37,6 +40,8 @@ const typeIcons = {
   currency: "💱",
   crypto: "₿",
   metal: "🥇",
+  deposit: "🏦",
+  realestate: "🏠",
 };
 
 const Portfolio = () => {
@@ -44,7 +49,7 @@ const Portfolio = () => {
   const portfolioAssets = useSelector((state) => state.portfolio.assets);
   const sharesData = useSelector((state) => state.shares.items);
 
-  // Обновляем статистику при изменении данных
+  // Обновляем статистику для акций при изменении данных
   useEffect(() => {
     portfolioAssets.forEach((asset) => {
       if (asset.type === "share") {
@@ -73,6 +78,10 @@ const Portfolio = () => {
 
   const totalPortfolioValue = useMemo(() => {
     return portfolioAssets.reduce((total, asset) => {
+      if (asset.type === "deposit") {
+        return total + (asset.value || 0);
+      }
+
       const unitPrice =
         asset.type === "bond"
           ? asset.pricePercent
@@ -95,6 +104,8 @@ const Portfolio = () => {
       <div className={styles.portfolioGrid}>
         {Object.entries(grouped).map(([type, assets]) => {
           const groupTotal = assets.reduce((sum, asset) => {
+            if (asset.type === "deposit") return sum + (asset.value || 0);
+
             const unitPrice =
               asset.type === "bond"
                 ? asset.pricePercent
@@ -127,35 +138,48 @@ const Portfolio = () => {
 
               <div className={styles.assetList}>
                 {assets.map((asset) => {
-                  const unitPrice =
-                    asset.type === "bond"
-                      ? asset.pricePercent
-                      : asset.price || asset.value || 0;
-                  const total =
-                    asset.type === "bond"
-                      ? (unitPrice / 100) * asset.quantity * 1000
-                      : unitPrice * asset.quantity;
+                  let total = 0;
+                  if (asset.type === "deposit") {
+                    total = asset.value || 0;
+                  } else {
+                    const unitPrice =
+                      asset.type === "bond"
+                        ? asset.pricePercent
+                        : asset.price || asset.value || 0;
+                    total =
+                      asset.type === "bond"
+                        ? (unitPrice / 100) * asset.quantity * 1000
+                        : unitPrice * asset.quantity;
+                  }
 
                   return (
                     <div key={asset.portfolioId} className={styles.assetCard}>
                       <div className={styles.assetInfo}>
                         <div className={styles.assetName}>{asset.name}</div>
-                        <div className={styles.assetDetails}>
-                          <span className={styles.quantity}>
-                            {asset.quantity}{" "}
-                            {asset.type === "metal"
-                              ? "г"
-                              : asset.type === "currency"
-                                ? "ед."
-                                : "шт"}
-                          </span>
-                          <span className={styles.separator}>•</span>
-                          <span className={styles.unitPrice}>
-                            {asset.type === "bond"
-                              ? `${unitPrice.toFixed(3)}%`
-                              : formatCurrency(unitPrice)}
-                          </span>
-                        </div>
+
+                        {asset.type !== "deposit" ? (
+                          <div className={styles.assetDetails}>
+                            <span className={styles.quantity}>
+                              {asset.quantity}{" "}
+                              {asset.type === "metal"
+                                ? "г"
+                                : asset.type === "currency"
+                                  ? "ед."
+                                  : "шт"}
+                            </span>
+                            <span className={styles.separator}>•</span>
+                            <span className={styles.unitPrice}>
+                              {asset.type === "bond"
+                                ? `${asset.pricePercent.toFixed(3)}%`
+                                : formatCurrency(asset.price || asset.value)}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className={styles.depositDetails}>
+                            <div>Ставка: {asset.rate}%</div>
+                            <div>Срок: {asset.termMonths} мес.</div>
+                          </div>
+                        )}
                       </div>
 
                       <div className={styles.assetValues}>
@@ -171,7 +195,7 @@ const Portfolio = () => {
                                 : styles.neutral
                           }`}
                         >
-                          за день {formatPercentage(asset.yearChangePercent)}
+                          доход {formatPercentage(asset.yearChangePercent)}
                         </div>
                       </div>
 
@@ -207,7 +231,8 @@ const Portfolio = () => {
           <div className={styles.emptyIcon}>📊</div>
           <h3 className={styles.emptyTitle}>Портфель пуст</h3>
           <p className={styles.emptyMessage}>
-            Добавьте свои первые активы, чтобы начать отслеживать инвестиции
+            Добавьте свои первые активы или депозиты, чтобы начать отслеживать
+            инвестиции
           </p>
         </div>
       )}
