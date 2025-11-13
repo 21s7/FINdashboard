@@ -9,21 +9,33 @@ import Portfolio from "./components/Portfolio";
 import DepositForm from "./components/DepositForm";
 import RealEstateForm from "./components/RealEstateForm";
 import PortfolioStats from "./components/PortfolioStats";
+import "./assets/styles/App.css";
 
 function App() {
   return (
     <div className="App">
+      {/* Это компоненты для рендера активов без визуала */}
       <Currency />
       <Cryptocurrencies />
       <Bonds />
       <Shares />
       <PreciousMetals />
 
-      <PortfolioStats />
-      <PortfolioSearch />
-      <DepositForm />
-      <RealEstateForm />
-      <Portfolio />
+      <div className="блок">
+        <div className="перваяСекция">
+          <PortfolioStats />
+        </div>
+        <div className="втораяСекция">
+          <div className="леваяЧастьВторойСекции">
+            <Portfolio />
+          </div>
+          <div className="праваяЧастьВторойСекции">
+            <PortfolioSearch />
+            <DepositForm />
+            <RealEstateForm />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
