@@ -1,6 +1,6 @@
 // src/components/PortfolioStats.jsx
 import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector } from "react-redux"; // добавляем импорт
 import {
   PieChart,
   Pie,
@@ -14,7 +14,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import styles from "../assets/styles/PortfolioStats.module.scss"; // убедитесь, что путь правильный
 
 const COLORS = [
   "#3b82f6",
@@ -43,9 +42,13 @@ const typeLabels = {
   realestate: "Недвижимость",
 };
 
-const PortfolioStats = ({ assets }) => {
+const PortfolioStats = () => {
+  // убираем пропс assets
   const [currency, setCurrency] = useState("rub");
   const [chartType, setChartType] = useState("pie");
+
+  // получаем данные из Redux store
+  const assets = useSelector((state) => state.portfolio.assets);
   const exchangeRates = useSelector((state) => state.currency.items);
 
   const getRateToRub = (code) => {
@@ -116,15 +119,13 @@ const PortfolioStats = ({ assets }) => {
   }, [assets, currency, exchangeRates]);
 
   return (
-    <div className={styles.statsContainer}>
-      <div className={styles.totalValueSection}>
-        <span className={styles.totalLabel}>Общая стоимость</span>
-        <span className={styles.totalAmount}>
-          {formatCurrency(convertedTotal)}
-        </span>
+    <div>
+      <div>
+        <span>Общая стоимость</span>
+        <span>{formatCurrency(convertedTotal)}</span>
       </div>
 
-      <div className={styles.controls}>
+      <div>
         <label>
           Валюта:
           <select
@@ -149,7 +150,7 @@ const PortfolioStats = ({ assets }) => {
         </label>
       </div>
 
-      <div className={styles.chartArea}>
+      <div>
         {chartType === "pie" ? (
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>

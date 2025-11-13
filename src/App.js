@@ -8,7 +8,7 @@ import PortfolioSearch from "./components/PortfolioSearch";
 import Portfolio from "./components/Portfolio";
 import DepositForm from "./components/DepositForm";
 import RealEstateForm from "./components/RealEstateForm";
-import styles from "./assets/styles/main.scss";
+import PortfolioStats from "./components/PortfolioStats";
 
 function App() {
   return (
@@ -19,6 +19,7 @@ function App() {
       <Shares />
       <PreciousMetals />
 
+      <PortfolioStats />
       <PortfolioSearch />
       <DepositForm />
       <RealEstateForm />

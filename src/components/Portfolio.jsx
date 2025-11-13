@@ -2,8 +2,6 @@
 import React, { useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
-import styles from "../assets/styles/Portfolio.module.scss";
-import PortfolioStats from "./PortfolioStats";
 
 const formatCurrency = (num, suffix = "₽") =>
   typeof num === "number"
@@ -76,32 +74,14 @@ const Portfolio = () => {
     [portfolioAssets]
   );
 
-  const totalPortfolioValue = useMemo(() => {
-    return portfolioAssets.reduce((total, asset) => {
-      if (asset.type === "deposit") {
-        return total + (asset.value || 0);
-      }
-
-      const unitPrice =
-        asset.type === "bond"
-          ? asset.pricePercent
-          : asset.price || asset.value || 0;
-      const assetTotal =
-        asset.type === "bond"
-          ? (unitPrice / 100) * asset.quantity * 1000
-          : unitPrice * asset.quantity;
-      return total + assetTotal;
-    }, 0);
-  }, [portfolioAssets]);
-
   return (
-    <div className={styles.portfolioView}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Мой Портфель</h1>
-        <PortfolioStats assets={portfolioAssets} />
+    <div>
+      <div>
+        <h1>Мой Портфель</h1>
+        {/* PortfolioStats теперь будет вставляться в App.js отдельно */}
       </div>
 
-      <div className={styles.portfolioGrid}>
+      <div>
         {Object.entries(grouped).map(([type, assets]) => {
           const groupTotal = assets.reduce((sum, asset) => {
             if (asset.type === "deposit") return sum + (asset.value || 0);
@@ -118,25 +98,19 @@ const Portfolio = () => {
           }, 0);
 
           return (
-            <div key={type} className={styles.assetGroup}>
-              <div className={styles.groupHeader}>
-                <div className={styles.groupInfo}>
-                  <span className={styles.groupIcon}>{typeIcons[type]}</span>
-                  <h3 className={styles.groupTitle}>
-                    {typeNames[type] || type}
-                  </h3>
+            <div key={type}>
+              <div>
+                <div>
+                  <span>{typeIcons[type]}</span>
+                  <h3>{typeNames[type] || type}</h3>
                 </div>
-                <div className={styles.groupTotal}>
-                  <span className={styles.groupTotalAmount}>
-                    {formatCurrency(groupTotal)}
-                  </span>
-                  <span className={styles.groupCount}>
-                    {assets.length} позиций
-                  </span>
+                <div>
+                  <span>{formatCurrency(groupTotal)}</span>
+                  <span>{assets.length} позиций</span>
                 </div>
               </div>
 
-              <div className={styles.assetList}>
+              <div>
                 {assets.map((asset) => {
                   let total = 0;
                   if (asset.type === "deposit") {
@@ -153,13 +127,13 @@ const Portfolio = () => {
                   }
 
                   return (
-                    <div key={asset.portfolioId} className={styles.assetCard}>
-                      <div className={styles.assetInfo}>
-                        <div className={styles.assetName}>{asset.name}</div>
+                    <div key={asset.portfolioId}>
+                      <div>
+                        <div>{asset.name}</div>
 
                         {asset.type !== "deposit" ? (
-                          <div className={styles.assetDetails}>
-                            <span className={styles.quantity}>
+                          <div>
+                            <span>
                               {asset.quantity}{" "}
                               {asset.type === "metal"
                                 ? "г"
@@ -167,40 +141,29 @@ const Portfolio = () => {
                                   ? "ед."
                                   : "шт"}
                             </span>
-                            <span className={styles.separator}>•</span>
-                            <span className={styles.unitPrice}>
+                            <span>•</span>
+                            <span>
                               {asset.type === "bond"
                                 ? `${asset.pricePercent.toFixed(3)}%`
                                 : formatCurrency(asset.price || asset.value)}
                             </span>
                           </div>
                         ) : (
-                          <div className={styles.depositDetails}>
+                          <div>
                             <div>Ставка: {asset.rate}%</div>
                             <div>Срок: {asset.termMonths} мес.</div>
                           </div>
                         )}
                       </div>
 
-                      <div className={styles.assetValues}>
-                        <div className={styles.totalValue}>
-                          {formatCurrency(total)}
-                        </div>
-                        <div
-                          className={`${styles.change} ${
-                            asset.yearChangePercent > 0
-                              ? styles.positive
-                              : asset.yearChangePercent < 0
-                                ? styles.negative
-                                : styles.neutral
-                          }`}
-                        >
+                      <div>
+                        <div>{formatCurrency(total)}</div>
+                        <div>
                           доход {formatPercentage(asset.yearChangePercent)}
                         </div>
                       </div>
 
                       <button
-                        className={styles.removeButton}
                         onClick={() =>
                           dispatch(
                             removeAsset({ portfolioId: asset.portfolioId })
@@ -227,10 +190,10 @@ const Portfolio = () => {
       </div>
 
       {portfolioAssets.length === 0 && (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📊</div>
-          <h3 className={styles.emptyTitle}>Портфель пуст</h3>
-          <p className={styles.emptyMessage}>
+        <div>
+          <div>📊</div>
+          <h3>Портфель пуст</h3>
+          <p>
             Добавьте свои первые активы или депозиты, чтобы начать отслеживать
             инвестиции
           </p>

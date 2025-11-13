@@ -1,7 +1,7 @@
+// src/components/PortfolioSearch.jsx
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
-import styles from "../assets/styles/PortfolioSearch.module.scss";
 
 const formatPercentage = (value) => {
   if (value === undefined || value === null) return "—";
@@ -145,9 +145,9 @@ const PortfolioSearch = () => {
   );
 
   return (
-    <div className={styles.portfolioSearch}>
+    <div>
       <h2>Поиск активов</h2>
-      <div className={styles.searchInput}>
+      <div>
         <input
           type="text"
           placeholder="Поиск по названию или тикеру..."
@@ -157,9 +157,9 @@ const PortfolioSearch = () => {
       </div>
 
       {searchTerm && (
-        <div className={styles.searchResults}>
+        <div>
           {isLoading ? (
-            <p className={styles.loading}>Загрузка...</p>
+            <p>Загрузка...</p>
           ) : filteredAssets.length > 0 ? (
             <ul>
               {filteredAssets.map((asset, index) => {
@@ -170,36 +170,23 @@ const PortfolioSearch = () => {
                 return (
                   <li
                     key={assetKey}
-                    className={styles.assetItem}
                     onMouseEnter={() => setHoveredAsset(assetKey)}
                     onMouseLeave={() => setHoveredAsset(null)}
                   >
-                    <div className={styles.assetInfo}>
-                      <div className={styles.assetName}>
+                    <div>
+                      <div>
                         {asset.name} ({asset.ticker || asset.code || asset.id})
                       </div>
-                      <div className={styles.assetType}>
-                        {asset.typeRussian}
-                      </div>
-                      <div className={styles.assetPrice}>
-                        {asset.displayPrice}
-                      </div>
-                      <div
-                        className={`${styles.assetChange} ${
-                          asset.yearChangePercent > 0
-                            ? styles.positive
-                            : asset.yearChangePercent < 0
-                              ? styles.negative
-                              : ""
-                        }`}
-                      >
+                      <div>{asset.typeRussian}</div>
+                      <div>{asset.displayPrice}</div>
+                      <div>
                         за день {formatPercentage(asset.yearChangePercent)}
                       </div>
                     </div>
 
                     {asset.displayPrice !== "не торгуется" &&
                       hoveredAsset === assetKey && (
-                        <div className={styles.assetControls}>
+                        <div>
                           <input
                             type="number"
                             min="1"
@@ -207,12 +194,8 @@ const PortfolioSearch = () => {
                             onChange={(e) =>
                               handleQuantityChange(quantityKey, e.target.value)
                             }
-                            className={styles.quantityInput}
                           />
-                          <button
-                            onClick={() => handleAddAsset(asset)}
-                            className={styles.addButton}
-                          >
+                          <button onClick={() => handleAddAsset(asset)}>
                             Добавить
                           </button>
                         </div>

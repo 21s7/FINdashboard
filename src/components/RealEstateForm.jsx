@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
-import styles from "../assets/styles/PortfolioSearch.module.scss";
 
 const RealEstateForm = () => {
   const dispatch = useDispatch();
@@ -40,17 +39,13 @@ const RealEstateForm = () => {
   };
 
   return (
-    <div className={styles.portfolioSearch}>
+    <div>
       {!isOpen ? (
-        <button
-          onClick={() => setIsOpen(true)}
-          className={styles.addButton}
-          style={{ marginTop: "10px" }}
-        >
+        <button onClick={() => setIsOpen(true)} style={{ marginTop: "10px" }}>
           🏠 Добавить недвижимость
         </button>
       ) : (
-        <div className={styles.depositForm}>
+        <div>
           <h2>Добавить недвижимость</h2>
 
           <input
@@ -77,7 +72,6 @@ const RealEstateForm = () => {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className={styles.selectInput}
           >
             <option value="Жилая недвижимость">Жилая недвижимость</option>
             <option value="Коммерческая недвижимость">
@@ -89,7 +83,7 @@ const RealEstateForm = () => {
             </option>
           </select>
 
-          <div className={styles.formButtons}>
+          <div>
             <button onClick={handleAddRealEstate}>Добавить</button>
             <button onClick={() => setIsOpen(false)}>Отмена</button>
           </div>

@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
-import styles from "../assets/styles/PortfolioSearch.module.scss";
 
 const DepositForm = () => {
   const dispatch = useDispatch();
@@ -43,17 +42,13 @@ const DepositForm = () => {
   };
 
   return (
-    <div className={styles.portfolioSearch}>
+    <div>
       {!isOpen ? (
-        <button
-          onClick={() => setIsOpen(true)}
-          className={styles.addButton}
-          style={{ marginTop: "10px" }}
-        >
+        <button onClick={() => setIsOpen(true)} style={{ marginTop: "10px" }}>
           🏦 Добавить депозит
         </button>
       ) : (
-        <div className={styles.depositForm}>
+        <div>
           <h2>Добавить депозит</h2>
 
           <input
@@ -77,7 +72,7 @@ const DepositForm = () => {
             onChange={(e) => setMonths(e.target.value)}
           />
 
-          <div className={styles.formButtons}>
+          <div>
             <button onClick={handleAddDeposit}>Добавить</button>
             <button onClick={() => setIsOpen(false)}>Отмена</button>
           </div>
