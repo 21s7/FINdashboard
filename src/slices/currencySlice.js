@@ -1,3 +1,4 @@
+// src/slices/currencySlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchCurrency = createAsyncThunk(

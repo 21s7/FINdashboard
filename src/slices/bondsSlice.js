@@ -1,3 +1,5 @@
+// src/slices/bondsSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {

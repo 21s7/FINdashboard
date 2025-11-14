@@ -1,3 +1,4 @@
+// src/slices/cryptoSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchCrypto = createAsyncThunk("crypto/fetchCrypto", async () => {
