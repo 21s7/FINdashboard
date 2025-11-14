@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 
-const RealEstateForm = () => {
+const RealEstateForm = ({ onClose }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -36,23 +36,30 @@ const RealEstateForm = () => {
     setYieldPercent("");
     setCategory("Жилая недвижимость");
     setIsOpen(false);
+    if (onClose) onClose();
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+    if (onClose) onClose();
   };
 
   return (
     <div>
-      {!isOpen ? (
-        <button onClick={() => setIsOpen(true)} style={{ marginTop: "10px" }}>
-          🏠 Добавить недвижимость
-        </button>
-      ) : (
+      {isOpen ? (
         <div>
-          <h2>Добавить недвижимость</h2>
-
           <input
             type="text"
             placeholder="Название объекта (например, квартира)"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginBottom: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
 
           <input
@@ -60,6 +67,13 @@ const RealEstateForm = () => {
             placeholder="Стоимость (₽)"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginBottom: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
 
           <input
@@ -67,11 +81,25 @@ const RealEstateForm = () => {
             placeholder="Доходность (%)"
             value={yieldPercent}
             onChange={(e) => setYieldPercent(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginBottom: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
 
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginBottom: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           >
             <option value="Жилая недвижимость">Жилая недвижимость</option>
             <option value="Коммерческая недвижимость">
@@ -83,11 +111,52 @@ const RealEstateForm = () => {
             </option>
           </select>
 
-          <div>
-            <button onClick={handleAddRealEstate}>Добавить</button>
-            <button onClick={() => setIsOpen(false)}>Отмена</button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              onClick={handleAddRealEstate}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#3b82f6",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                flex: 1,
+              }}
+            >
+              Добавить
+            </button>
+            <button
+              onClick={handleCancel}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#6b7280",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                flex: 1,
+              }}
+            >
+              Отмена
+            </button>
           </div>
         </div>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          style={{
+            marginTop: "10px",
+            padding: "8px 16px",
+            backgroundColor: "#10b981",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          🏠 Добавить недвижимость
+        </button>
       )}
     </div>
   );

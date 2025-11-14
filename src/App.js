@@ -24,18 +24,32 @@ function App() {
       <Bonds />
       <Shares />
       <PreciousMetals />
+      <div className="блок">
+        <div className="перваяСекция">
+          <PortfolioSearch />
+        </div>
 
-      <TotalValue currency={currency} onCurrencyChange={setCurrency} />
-      <Diagram
-        currency={currency}
-        chartType={chartType}
-        onChartTypeChange={setChartType}
-      />
-      {/* <PortfolioStats /> */}
-      <Portfolio />
-      <PortfolioSearch />
-      <DepositForm />
-      <RealEstateForm />
+        <div className="втораяСекция">
+          <div className="леваяЧастьВторойСекции">
+            <TotalValue currency={currency} onCurrencyChange={setCurrency} />
+          </div>{" "}
+          <div className="праваяЧастьВторойСекции">
+            {" "}
+            <Diagram
+              currency={currency}
+              chartType={chartType}
+              onChartTypeChange={setChartType}
+            />
+          </div>
+        </div>
+        <div className="третьяСекция">
+          <Portfolio />
+        </div>
+        <div className="четвертаяСекция">
+          {" "}
+          <button>Сохранить</button> <button>экспорт</button>
+        </div>
+      </div>
     </div>
   );
 }
