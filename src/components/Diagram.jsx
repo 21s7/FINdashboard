@@ -103,121 +103,135 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
   };
 
   return (
-    <div
-      style={{
-        padding: "15px",
-        border: "1px solid #e0e0e0",
-        borderRadius: "8px",
-      }}
-    >
+    <div className="card-shadow" style={{ height: "100%" }}>
       <div
         style={{
+          padding: "1.5rem",
+          height: "100%",
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "15px",
+          flexDirection: "column",
         }}
       >
-        <h3 style={{ margin: 0 }}>Распределение активов</h3>
+        <div className="diagram-header">
+          <h3 style={{ margin: 0 }}>Распределение активов</h3>
+          <div
+            className="diagram-type-toggle"
+            onClick={handleChartClick}
+            style={{
+              fontSize: "1.25rem",
+              cursor: "pointer",
+              padding: "0.5rem",
+              borderRadius: "var(--border-radius)",
+              transition: "var(--transition)",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "var(--dark-surface-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "transparent";
+            }}
+            title="Нажмите для смены типа диаграммы"
+          >
+            {getChartIcon()}
+          </div>
+        </div>
+
         <div
           style={{
-            fontSize: "20px",
+            flex: 1,
             cursor: "pointer",
-            padding: "8px",
-            borderRadius: "4px",
-            transition: "background-color 0.2s ease",
+            borderRadius: "var(--border-radius)",
+            transition: "var(--transition)",
           }}
           onClick={handleChartClick}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#f0f0f0";
+            e.target.style.backgroundColor = "var(--dark-surface-hover)";
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = "transparent";
           }}
           title="Нажмите для смены типа диаграммы"
         >
-          {getChartIcon()}
-        </div>
-      </div>
-
-      <div
-        style={{
-          cursor: "pointer",
-          borderRadius: "8px",
-          transition: "background-color 0.2s ease",
-        }}
-        onClick={handleChartClick}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = "#f8f9fa";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = "transparent";
-        }}
-        title="Нажмите для смены типа диаграммы"
-      >
-        {chartType === "pie" ? (
-          <ResponsiveContainer width="100%" height={350}>
-            <PieChart>
-              <Pie
+          {chartType === "pie" ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  innerRadius={40}
+                  dataKey="value"
+                  isAnimationActive={false}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(val) => formatCurrency(val)} />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  layout="horizontal"
+                  wrapperStyle={{
+                    fontSize: "12px",
+                    maxWidth: "90%",
+                    margin: "0 auto",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
                 data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={110}
-                innerRadius={50}
-                dataKey="value"
-                isAnimationActive={false}
+                margin={{ top: 10, right: 10, bottom: 60, left: 0 }}
               >
-                {chartData.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(val) => formatCurrency(val)} />
-              <Legend
-                verticalAlign="bottom"
-                align="center"
-                layout="horizontal"
-                wrapperStyle={{
-                  fontSize: "14px",
-                  maxWidth: "90%",
-                  margin: "0 auto",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart
-              data={chartData}
-              margin={{ top: 10, right: 10, bottom: 60, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="name"
-                interval={0}
-                angle={-30}
-                textAnchor="end"
-                tick={{ fontSize: 12 }}
-                height={60}
-              />
-              <YAxis />
-              <Tooltip formatter={(val) => formatCurrency(val)} />
-              <Legend />
-              <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--dark-divider)"
+                />
+                <XAxis
+                  dataKey="name"
+                  interval={0}
+                  angle={-30}
+                  textAnchor="end"
+                  tick={{ fontSize: 10, fill: "var(--dark-text-secondary)" }}
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "var(--dark-text-secondary)" }}
+                />
+                <Tooltip
+                  formatter={(val) => formatCurrency(val)}
+                  contentStyle={{
+                    backgroundColor: "var(--dark-surface)",
+                    border: "1px solid var(--dark-border)",
+                    borderRadius: "var(--border-radius)",
+                    color: "var(--dark-text-primary)",
+                  }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="var(--primary-color)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
 
-      <div
-        style={{
-          fontSize: "12px",
-          color: "#666",
-          textAlign: "center",
-          marginTop: "10px",
-        }}
-      >
-        Нажмите на диаграмму для смены типа
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--dark-text-tertiary)",
+            textAlign: "center",
+            marginTop: "0.5rem",
+          }}
+        >
+          Нажмите на диаграмму для смены типа
+        </div>
       </div>
     </div>
   );

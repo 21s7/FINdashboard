@@ -221,124 +221,110 @@ const PortfolioSearch = () => {
     [quantities, dispatch]
   );
 
-  const handleCloseForms = useCallback(() => {
-    setShowDepositForm(false);
-    setShowRealEstateForm(false);
-    setSearchTerm("");
+  // Функция для закрытия только формы (без очистки поиска)
+  const handleCloseForm = useCallback((formType) => {
+    if (formType === "deposit") {
+      setShowDepositForm(false);
+    } else if (formType === "realestate") {
+      setShowRealEstateForm(false);
+    }
   }, []);
 
   return (
-    <div>
+    <div className="portfolioSearch card-shadow">
       <h2>Поиск активов</h2>
-      <div>
+      <div className="searchInput">
         <input
           type="text"
           placeholder="Поиск по названию или тикеру..."
           value={searchTerm}
           onChange={handleSearchChange}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
         />
       </div>
 
       {searchTerm && (
-        <div>
+        <div className="fade-in">
           {/* Показываем формы при поиске соответствующих ключевых слов */}
           {showDepositForm && (
-            <div
-              style={{
-                marginBottom: "20px",
-                padding: "15px",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-              }}
-            >
+            <div className="deposit-form-container">
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: "10px",
+                  marginBottom: "1rem",
                 }}
               >
                 <h3 style={{ margin: 0 }}>Добавить депозит</h3>
                 <button
-                  onClick={handleCloseForms}
-                  style={{ padding: "4px 8px" }}
+                  onClick={() => handleCloseForm("deposit")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--dark-text-secondary)",
+                    fontSize: "1.25rem",
+                    cursor: "pointer",
+                  }}
                 >
                   ✕
                 </button>
               </div>
-              <DepositForm onClose={handleCloseForms} />
+              <DepositForm onClose={() => handleCloseForm("deposit")} />
             </div>
           )}
 
           {showRealEstateForm && (
-            <div
-              style={{
-                marginBottom: "20px",
-                padding: "15px",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-              }}
-            >
+            <div className="realestate-form-container">
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: "10px",
+                  marginBottom: "1rem",
                 }}
               >
                 <h3 style={{ margin: 0 }}>Добавить недвижимость</h3>
                 <button
-                  onClick={handleCloseForms}
-                  style={{ padding: "4px 8px" }}
+                  onClick={() => handleCloseForm("realestate")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--dark-text-secondary)",
+                    fontSize: "1.25rem",
+                    cursor: "pointer",
+                  }}
                 >
                   ✕
                 </button>
               </div>
-              <RealEstateForm onClose={handleCloseForms} />
+              <RealEstateForm onClose={() => handleCloseForm("realestate")} />
             </div>
           )}
 
           {isLoading ? (
-            <p>Загрузка...</p>
+            <div className="loading">Загрузка...</div>
           ) : filteredAssets.length > 0 ? (
-            <ul style={{ listStyle: "none", padding: 0 }}>
+            <div className="searchResults">
               {filteredAssets.map((asset, index) => {
                 const assetKey = `${asset.type}-${asset.ticker || asset.code || asset.id}-${index}`;
                 const quantityKey = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
                 const quantity = quantities[quantityKey] || 1;
 
                 return (
-                  <li
+                  <div
                     key={assetKey}
+                    className="assetItem smooth-appear"
                     onMouseEnter={() => setHoveredAsset(assetKey)}
                     onMouseLeave={() => setHoveredAsset(null)}
-                    style={{
-                      padding: "10px",
-                      border: "1px solid #e0e0e0",
-                      marginBottom: "5px",
-                      borderRadius: "4px",
-                      backgroundColor:
-                        hoveredAsset === assetKey ? "#f5f5f5" : "white",
-                    }}
                   >
-                    <div>
-                      <div style={{ fontWeight: "bold" }}>
+                    <div className="assetInfo">
+                      <div className="assetName truncate">
                         {asset.name} ({asset.ticker || asset.code || asset.id})
                       </div>
-                      <div style={{ fontSize: "14px", color: "#666" }}>
-                        {asset.typeRussian}
-                      </div>
-                      <div style={{ fontSize: "14px" }}>
-                        {asset.displayPrice}
-                      </div>
+                      <div className="assetType">{asset.typeRussian}</div>
+                      <div className="assetPrice">{asset.displayPrice}</div>
                       <div
-                        style={{
-                          fontSize: "14px",
-                          color: asset.yearChangePercent >= 0 ? "green" : "red",
-                        }}
+                        className={`assetChange ${asset.yearChangePercent >= 0 ? "positive" : "negative"}`}
                       >
                         за день {formatPercentage(asset.yearChangePercent)}
                       </div>
@@ -346,14 +332,7 @@ const PortfolioSearch = () => {
 
                     {asset.displayPrice !== "не торгуется" &&
                       hoveredAsset === assetKey && (
-                        <div
-                          style={{
-                            marginTop: "10px",
-                            display: "flex",
-                            gap: "10px",
-                            alignItems: "center",
-                          }}
-                        >
+                        <div className="assetControls">
                           <input
                             type="number"
                             min="1"
@@ -361,26 +340,20 @@ const PortfolioSearch = () => {
                             onChange={(e) =>
                               handleQuantityChange(quantityKey, e.target.value)
                             }
-                            style={{ width: "80px", padding: "4px" }}
+                            className="quantityInput"
                           />
                           <button
                             onClick={() => handleAddAsset(asset)}
-                            style={{
-                              padding: "4px 12px",
-                              backgroundColor: "#3b82f6",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "4px",
-                            }}
+                            className="addButton"
                           >
                             Добавить
                           </button>
                         </div>
                       )}
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           ) : !showDepositForm && !showRealEstateForm ? (
             <p>Активы не найдены</p>
           ) : null}

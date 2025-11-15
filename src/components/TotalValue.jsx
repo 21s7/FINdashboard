@@ -61,38 +61,42 @@ const TotalValue = ({ currency, onCurrencyChange }) => {
   };
 
   return (
-    <div
-      style={{
-        marginBottom: "20px",
-        padding: "15px",
-        border: "1px solid #e0e0e0",
-        borderRadius: "8px",
-      }}
-    >
+    <div className="card-shadow" style={{ height: "100%" }}>
       <div
         style={{
+          padding: "1.5rem",
+          height: "100%",
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          marginBottom: "10px",
+          textAlign: "center",
         }}
       >
-        <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-          Общая стоимость портфеля
-        </span>
+        <div style={{ marginBottom: "1rem" }}>
+          <span
+            style={{
+              fontSize: "1rem",
+              color: "var(--dark-text-secondary)",
+              fontWeight: "500",
+            }}
+          >
+            Общая стоимость портфеля
+          </span>
+        </div>
+
         <span
-          style={{
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "#3b82f6",
-            cursor: "pointer",
-            padding: "8px 12px",
-            borderRadius: "4px",
-            transition: "background-color 0.2s ease",
-          }}
+          className="total-amount"
           onClick={handleTotalClick}
+          style={{
+            cursor: "pointer",
+            padding: "1rem",
+            borderRadius: "var(--border-radius)",
+            transition: "var(--transition)",
+            display: "block",
+          }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#f0f0f0";
+            e.target.style.backgroundColor = "var(--dark-surface-hover)";
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = "transparent";
@@ -101,10 +105,16 @@ const TotalValue = ({ currency, onCurrencyChange }) => {
         >
           {formatCurrency(convertedTotal)}
         </span>
-      </div>
 
-      <div style={{ fontSize: "12px", color: "#666", textAlign: "right" }}>
-        Нажмите на сумму для смены валюты
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "var(--dark-text-tertiary)",
+            marginTop: "1rem",
+          }}
+        >
+          Нажмите на сумму для смены валюты
+        </div>
       </div>
     </div>
   );

@@ -75,13 +75,12 @@ const Portfolio = () => {
   );
 
   return (
-    <div>
-      <div>
-        <h1>Мой Портфель</h1>
-        {/* PortfolioStats теперь будет вставляться в App.js отдельно */}
+    <div className="portfolioView">
+      <div className="header">
+        <h1 className="title">Мой Портфель</h1>
       </div>
 
-      <div>
+      <div className="portfolioGrid">
         {Object.entries(grouped).map(([type, assets]) => {
           const groupTotal = assets.reduce((sum, asset) => {
             if (asset.type === "deposit") return sum + (asset.value || 0);
@@ -98,19 +97,21 @@ const Portfolio = () => {
           }, 0);
 
           return (
-            <div key={type}>
-              <div>
-                <div>
-                  <span>{typeIcons[type]}</span>
-                  <h3>{typeNames[type] || type}</h3>
+            <div key={type} className="assetGroup">
+              <div className="groupHeader">
+                <div className="groupInfo">
+                  <span className="groupIcon">{typeIcons[type]}</span>
+                  <h3 className="groupTitle">{typeNames[type] || type}</h3>
                 </div>
-                <div>
-                  <span>{formatCurrency(groupTotal)}</span>
-                  <span>{assets.length} позиций</span>
+                <div className="groupTotal">
+                  <span className="groupTotalAmount">
+                    {formatCurrency(groupTotal)}
+                  </span>
+                  <span className="groupCount">{assets.length} позиций</span>
                 </div>
               </div>
 
-              <div>
+              <div className="assetList">
                 {assets.map((asset) => {
                   let total = 0;
                   if (asset.type === "deposit") {
@@ -127,13 +128,13 @@ const Portfolio = () => {
                   }
 
                   return (
-                    <div key={asset.portfolioId}>
-                      <div>
-                        <div>{asset.name}</div>
+                    <div key={asset.portfolioId} className="assetCard">
+                      <div className="assetInfo">
+                        <div className="assetName">{asset.name}</div>
 
                         {asset.type !== "deposit" ? (
-                          <div>
-                            <span>
+                          <div className="assetDetails">
+                            <span className="quantity">
                               {asset.quantity}{" "}
                               {asset.type === "metal"
                                 ? "г"
@@ -141,29 +142,34 @@ const Portfolio = () => {
                                   ? "ед."
                                   : "шт"}
                             </span>
-                            <span>•</span>
-                            <span>
+                            <span className="separator">•</span>
+                            <span className="unitPrice">
                               {asset.type === "bond"
                                 ? `${asset.pricePercent.toFixed(3)}%`
                                 : formatCurrency(asset.price || asset.value)}
                             </span>
                           </div>
                         ) : (
-                          <div>
+                          <div className="depositDetails">
                             <div>Ставка: {asset.rate}%</div>
                             <div>Срок: {asset.termMonths} мес.</div>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <div>{formatCurrency(total)}</div>
-                        <div>
+                      <div className="assetValues">
+                        <div className="totalValue">
+                          {formatCurrency(total)}
+                        </div>
+                        <div
+                          className={`change ${asset.yearChangePercent >= 0 ? "positive" : "negative"}`}
+                        >
                           доход {formatPercentage(asset.yearChangePercent)}
                         </div>
                       </div>
 
                       <button
+                        className="removeButton"
                         onClick={() =>
                           dispatch(
                             removeAsset({ portfolioId: asset.portfolioId })
@@ -190,10 +196,10 @@ const Portfolio = () => {
       </div>
 
       {portfolioAssets.length === 0 && (
-        <div>
-          <div>📊</div>
-          <h3>Портфель пуст</h3>
-          <p>
+        <div className="emptyState">
+          <div className="emptyIcon">📊</div>
+          <h3 className="emptyTitle">Портфель пуст</h3>
+          <p className="emptyMessage">
             Добавьте свои первые активы или депозиты, чтобы начать отслеживать
             инвестиции
           </p>

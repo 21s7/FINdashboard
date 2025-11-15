@@ -50,19 +50,12 @@ const DepositForm = ({ onClose }) => {
   return (
     <div>
       {isOpen ? (
-        <div>
+        <div className="form-row">
           <input
             type="number"
             placeholder="Сумма (₽)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
           <input
@@ -70,13 +63,6 @@ const DepositForm = ({ onClose }) => {
             placeholder="Процентная ставка (%)"
             value={rate}
             onChange={(e) => setRate(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
           <input
@@ -84,59 +70,15 @@ const DepositForm = ({ onClose }) => {
             placeholder="Срок (мес.)"
             value={months}
             onChange={(e) => setMonths(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              onClick={handleAddDeposit}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Добавить
-            </button>
-            <button
-              onClick={handleCancel}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#6b7280",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Отмена
-            </button>
+          <div className="form-buttons">
+            <button onClick={handleAddDeposit}>Добавить</button>
+            <button onClick={handleCancel}>Отмена</button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => setIsOpen(true)}
-          style={{
-            marginTop: "10px",
-            padding: "8px 16px",
-            backgroundColor: "#10b981",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={() => setIsOpen(true)} className="addButton">
           🏦 Добавить депозит
         </button>
       )}

@@ -47,19 +47,12 @@ const RealEstateForm = ({ onClose }) => {
   return (
     <div>
       {isOpen ? (
-        <div>
+        <div className="form-row">
           <input
             type="text"
             placeholder="Название объекта (например, квартира)"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
           <input
@@ -67,13 +60,6 @@ const RealEstateForm = ({ onClose }) => {
             placeholder="Стоимость (₽)"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
           <input
@@ -81,25 +67,11 @@ const RealEstateForm = ({ onClose }) => {
             placeholder="Доходность (%)"
             value={yieldPercent}
             onChange={(e) => setYieldPercent(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           />
 
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
           >
             <option value="Жилая недвижимость">Жилая недвижимость</option>
             <option value="Коммерческая недвижимость">
@@ -111,50 +83,13 @@ const RealEstateForm = ({ onClose }) => {
             </option>
           </select>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              onClick={handleAddRealEstate}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Добавить
-            </button>
-            <button
-              onClick={handleCancel}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#6b7280",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Отмена
-            </button>
+          <div className="form-buttons">
+            <button onClick={handleAddRealEstate}>Добавить</button>
+            <button onClick={handleCancel}>Отмена</button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => setIsOpen(true)}
-          style={{
-            marginTop: "10px",
-            padding: "8px 16px",
-            backgroundColor: "#10b981",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={() => setIsOpen(true)} className="addButton">
           🏠 Добавить недвижимость
         </button>
       )}
