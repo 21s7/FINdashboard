@@ -84,6 +84,7 @@ const Portfolio = () => {
         {Object.entries(grouped).map(([type, assets]) => {
           const groupTotal = assets.reduce((sum, asset) => {
             if (asset.type === "deposit") return sum + (asset.value || 0);
+            if (asset.type === "realestate") return sum + (asset.value || 0);
 
             const unitPrice =
               asset.type === "bond"
@@ -114,7 +115,7 @@ const Portfolio = () => {
               <div className="assetList">
                 {assets.map((asset) => {
                   let total = 0;
-                  if (asset.type === "deposit") {
+                  if (asset.type === "deposit" || asset.type === "realestate") {
                     total = asset.value || 0;
                   } else {
                     const unitPrice =
@@ -132,7 +133,22 @@ const Portfolio = () => {
                       <div className="assetInfo">
                         <div className="assetName">{asset.name}</div>
 
-                        {asset.type !== "deposit" ? (
+                        {asset.type === "deposit" ? (
+                          <div className="depositDetails">
+                            <div>Ставка: {asset.rate}%</div>
+                            <div>Срок: {asset.termMonths} мес.</div>
+                          </div>
+                        ) : asset.type === "realestate" ? (
+                          <div className="realestateDetails">
+                            <div>Тип: {asset.category}</div>
+                            {asset.address && asset.address !== "Не указан" && (
+                              <div>Адрес: {asset.address}</div>
+                            )}
+                            {asset.yieldPercent > 0 && (
+                              <div>Доходность: {asset.yieldPercent}%</div>
+                            )}
+                          </div>
+                        ) : (
                           <div className="assetDetails">
                             <span className="quantity">
                               {asset.quantity}{" "}
@@ -148,11 +164,6 @@ const Portfolio = () => {
                                 ? `${asset.pricePercent.toFixed(3)}%`
                                 : formatCurrency(asset.price || asset.value)}
                             </span>
-                          </div>
-                        ) : (
-                          <div className="depositDetails">
-                            <div>Ставка: {asset.rate}%</div>
-                            <div>Срок: {asset.termMonths} мес.</div>
                           </div>
                         )}
                       </div>

@@ -10,6 +10,7 @@ const DepositForm = ({ onClose }) => {
   const [amount, setAmount] = useState("");
   const [rate, setRate] = useState("");
   const [months, setMonths] = useState("");
+  const [depositName, setDepositName] = useState("");
 
   const handleAddDeposit = () => {
     if (!amount || !rate || !months) return;
@@ -20,10 +21,15 @@ const DepositForm = ({ onClose }) => {
 
     const interest = parsedAmount * (parsedRate / 100) * (parsedMonths / 12); // простые проценты
 
+    // Создаем уникальное название для депозита
+    const name =
+      depositName ||
+      `Депозит ${parsedRate}% на ${parsedMonths} мес. (${new Date().toLocaleDateString()})`;
+
     dispatch(
       addAsset({
         type: "deposit",
-        name: `Депозит ${parsedRate}% на ${parsedMonths} мес.`,
+        name: name,
         quantity: 1,
         value: parsedAmount + interest,
         initialAmount: parsedAmount,
@@ -38,6 +44,7 @@ const DepositForm = ({ onClose }) => {
     setAmount("");
     setRate("");
     setMonths("");
+    setDepositName("");
     setIsOpen(false);
     if (onClose) onClose();
   };
@@ -51,6 +58,13 @@ const DepositForm = ({ onClose }) => {
     <div>
       {isOpen ? (
         <div className="form-row">
+          <input
+            type="text"
+            placeholder="Название депозита (необязательно)"
+            value={depositName}
+            onChange={(e) => setDepositName(e.target.value)}
+          />
+
           <input
             type="number"
             placeholder="Сумма (₽)"

@@ -11,6 +11,7 @@ const RealEstateForm = ({ onClose }) => {
   const [price, setPrice] = useState("");
   const [yieldPercent, setYieldPercent] = useState("");
   const [category, setCategory] = useState("Жилая недвижимость");
+  const [address, setAddress] = useState("");
 
   const handleAddRealEstate = () => {
     if (!name || !price) return;
@@ -18,11 +19,16 @@ const RealEstateForm = ({ onClose }) => {
     const parsedPrice = parseFloat(price);
     const parsedYield = parseFloat(yieldPercent || 0);
 
+    // Создаем уникальное название для недвижимости
+    const assetName =
+      name || `${category} (${new Date().toLocaleDateString()})`;
+
     dispatch(
       addAsset({
         type: "realestate",
-        name,
+        name: assetName,
         category,
+        address: address || "Не указан",
         quantity: 1,
         value: parsedPrice,
         yieldPercent: parsedYield,
@@ -34,6 +40,7 @@ const RealEstateForm = ({ onClose }) => {
     setName("");
     setPrice("");
     setYieldPercent("");
+    setAddress("");
     setCategory("Жилая недвижимость");
     setIsOpen(false);
     if (onClose) onClose();
@@ -50,16 +57,18 @@ const RealEstateForm = ({ onClose }) => {
         <div className="form-row">
           <input
             type="text"
-            placeholder="Название объекта (например, квартира)"
+            placeholder="Название объекта *"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
 
           <input
             type="number"
-            placeholder="Стоимость (₽)"
+            placeholder="Стоимость (₽) *"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            required
           />
 
           <input

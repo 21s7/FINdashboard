@@ -997,3 +997,53 @@ textarea::placeholder {
 .четвертаяСекция {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Добавьте эти стили в раздел стилей для Portfolio.jsx */
+
+.realestateDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--dark-text-secondary);
+}
+
+.realestateDetails div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 480px) {
+  .realestateDetails {
+    gap: 0.125rem;
+  }
+}
+
+/* Альтернативно, если хотите такой же стиль как у депозитов */
+.realestateDetails {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--dark-text-secondary);
+  flex-wrap: wrap;
+}
+
+/* Или объедините стили для обоих типов */
+.depositDetails,
+.realestateDetails {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--dark-text-secondary);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .depositDetails,
+  .realestateDetails {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
