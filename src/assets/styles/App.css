@@ -154,6 +154,10 @@ button {
   border: none;
   cursor: pointer;
   transition: var(--transition);
+  background: var(--dark-surface);
+  color: var(--dark-text-primary);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--border-radius);
 }
 
 button:focus-visible {
@@ -164,6 +168,16 @@ button:focus-visible {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background: var(--dark-surface-hover);
+  border-color: var(--dark-text-tertiary);
+}
+
+button:active:not(:disabled) {
+  background: var(--dark-surface-active);
+  transform: translateY(0);
 }
 
 /* Общие стили для инпутов */
@@ -307,20 +321,7 @@ textarea::placeholder {
 /* Кнопки в четвертой секции */
 .четвертаяСекция button {
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  color: white;
-  border-radius: var(--border-radius);
   font-weight: 500;
-  transition: var(--transition);
-}
-
-.четвертаяСекция button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-.четвертаяСекция button:active {
-  transform: translateY(0);
 }
 
 /* ===== СТИЛИ ДЛЯ PORTFOLIO.JSX ===== */
@@ -480,11 +481,14 @@ textarea::placeholder {
   font-size: 0.8rem;
 }
 
-.depositDetails {
+.depositDetails,
+.realestateDetails,
+.businessDetails {
   display: flex;
   gap: 1rem;
   font-size: 0.875rem;
   color: var(--dark-text-secondary);
+  flex-wrap: wrap;
 }
 
 .assetValues {
@@ -645,11 +649,6 @@ textarea::placeholder {
   background: var(--dark-surface-hover);
 }
 
-.assetInfo {
-  flex: 1;
-  min-width: 0;
-}
-
 .assetInfo .assetName {
   font-weight: 500;
   color: var(--dark-text-primary);
@@ -708,26 +707,16 @@ textarea::placeholder {
 
 .assetControls .addButton {
   padding: 0.5rem 1rem;
-  background: var(--primary-color);
-  color: white;
   border: none;
   border-radius: var(--border-radius-sm);
   font-size: 0.9rem;
   font-weight: 500;
-  transition: var(--transition);
 }
 
-.assetControls .addButton:hover {
-  background: var(--primary-dark);
-}
-
-.assetControls .addButton:active {
-  transform: scale(0.98);
-}
-
-/* Стили для форм депозита и недвижимости */
+/* Стили для форм депозита, недвижимости и бизнеса */
 .deposit-form-container,
-.realestate-form-container {
+.realestate-form-container,
+.business-form-container {
   background: var(--dark-surface-active);
   padding: 1.5rem;
   border-radius: var(--border-radius);
@@ -736,7 +725,8 @@ textarea::placeholder {
 }
 
 .deposit-form-container h3,
-.realestate-form-container h3 {
+.realestate-form-container h3,
+.business-form-container h3 {
   margin: 0 0 1rem 0;
   font-size: 1.125rem;
   font-weight: 600;
@@ -769,61 +759,25 @@ textarea::placeholder {
 .form-buttons button {
   flex: 1;
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius);
   font-size: 0.95rem;
   font-weight: 500;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.form-buttons button:first-child {
-  background: var(--primary-color);
-  color: white;
-}
-
-.form-buttons button:first-child:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-.form-buttons button:first-child:active {
-  transform: translateY(0);
-}
-
-.form-buttons button:last-child {
-  background: transparent;
-  border: 1px solid var(--dark-border);
-  color: var(--dark-text-secondary);
-}
-
-.form-buttons button:last-child:hover {
-  background: var(--dark-surface-hover);
-  border-color: var(--dark-text-tertiary);
-  color: var(--dark-text-primary);
 }
 
 /* Стили для TotalValue */
-.total-value-container {
-  text-align: center;
-}
-
-/* Обновите стили для TotalValue */
 .total-value-container {
   text-align: center;
   padding: 1rem;
   width: 100%;
 }
 
-/* Контейнер для суммы */
 .total-value-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: nowrap; /* Запрещаем перенос */
-  gap: 0.25rem; /* Небольшой отступ между числом и валютой */
+  flex-wrap: nowrap;
+  gap: 0.25rem;
   width: 100%;
-  min-height: 80px; /* Минимальная высота чтобы не прыгало */
+  min-height: 80px;
 }
 
 .total-amount {
@@ -840,58 +794,15 @@ textarea::placeholder {
   letter-spacing: -0.02em;
   line-height: 1;
   text-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-  display: inline-block; /* Изменено с block на inline-block */
+  display: inline-block;
   cursor: pointer;
   transition: var(--transition);
-  white-space: nowrap; /* Запрещаем перенос текста */
-  max-width: 100%; /* Ограничиваем ширину */
-  overflow: hidden; /* Скрываем переполнение */
-  text-overflow: ellipsis; /* Добавляем многоточие если не помещается */
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Дополнительные медиа-запросы для адаптивности */
-@media (max-width: 1024px) {
-  .total-amount {
-    font-size: 3.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .total-amount {
-    font-size: 3rem;
-  }
-
-  .total-value-wrapper {
-    min-height: 70px;
-  }
-}
-
-@media (max-width: 640px) {
-  .total-amount {
-    font-size: 2.5rem;
-  }
-
-  .total-value-wrapper {
-    min-height: 60px;
-  }
-}
-
-@media (max-width: 480px) {
-  .total-amount {
-    font-size: 2rem;
-  }
-
-  .total-value-wrapper {
-    min-height: 50px;
-  }
-}
-
-/* Для очень маленьких экранов */
-@media (max-width: 360px) {
-  .total-amount {
-    font-size: 1.75rem;
-  }
-}
 /* Стили для Diagram */
 .diagram-container {
   position: relative;
@@ -923,7 +834,74 @@ textarea::placeholder {
   background: var(--dark-surface-hover);
 }
 
+/* Стили для кнопки Добавить бизнес */
+.addButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Стили для верхней секции с логотипом и кнопками */
+.ВерхняяСекция {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--dark-surface);
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--dark-border);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+}
+
+.ВерхняяСекция:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  transition: var(--transition);
+}
+
+.logo:hover .logo-image {
+  transform: scale(1.05);
+}
+
+.header-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.header-button {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Адаптивность */
+@media (max-width: 1024px) {
+  .total-amount {
+    font-size: 3.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .App {
     padding: 1rem;
@@ -935,7 +913,11 @@ textarea::placeholder {
   }
 
   .total-amount {
-    font-size: 3.25rem;
+    font-size: 3rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 70px;
   }
 
   .четвертаяСекция {
@@ -995,6 +977,28 @@ textarea::placeholder {
   .form-buttons {
     flex-direction: column;
   }
+
+  .ВерхняяСекция {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .logo-image {
+    height: 35px;
+  }
+
+  .header-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-button {
+    flex: 1;
+    max-width: 140px;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1026,7 +1030,11 @@ textarea::placeholder {
   }
 
   .total-amount {
-    font-size: 2.75rem;
+    font-size: 2.5rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 60px;
   }
 
   .перваяСекция,
@@ -1045,9 +1053,48 @@ textarea::placeholder {
     padding: 1rem;
   }
 
-  .depositDetails {
+  .depositDetails,
+  .realestateDetails,
+  .businessDetails {
     flex-direction: column;
     gap: 0.25rem;
+  }
+
+  .business-form-container {
+    padding: 1rem;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ВерхняяСекция {
+    padding: 0.875rem;
+  }
+
+  .logo-image {
+    height: 30px;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-button {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .total-amount {
+    font-size: 2rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 50px;
   }
 }
 
@@ -1057,192 +1104,4 @@ textarea::placeholder {
 .третьяСекция,
 .четвертаяСекция {
   animation: fadeIn 0.3s ease-out;
-}
-
-/* Добавьте эти стили в раздел стилей для Portfolio.jsx */
-
-.realestateDetails {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--dark-text-secondary);
-}
-
-.realestateDetails div {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Для мобильных устройств */
-@media (max-width: 480px) {
-  .realestateDetails {
-    gap: 0.125rem;
-  }
-}
-
-/* Альтернативно, если хотите такой же стиль как у депозитов */
-.realestateDetails {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: var(--dark-text-secondary);
-  flex-wrap: wrap;
-}
-
-/* Или объедините стили для обоих типов */
-.depositDetails,
-.realestateDetails {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: var(--dark-text-secondary);
-  flex-wrap: wrap;
-}
-
-@media (max-width: 480px) {
-  .depositDetails,
-  .realestateDetails {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-}
-
-/* Добавить в конец файла App.css */
-
-/* Стили для формы бизнеса */
-.business-form-container {
-  background: var(--dark-surface-active);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--dark-border);
-  margin-bottom: 1rem;
-}
-
-.businessDetails {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--dark-text-secondary);
-}
-
-/* Стили для кнопки Добавить бизнес*/
-.addButton {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.addButton:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-.addButton:active {
-  transform: translateY(0);
-}
-
-/* Стили для формы бизнеса когда открыта - соответствуют другим формам */
-.business-form {
-  background: var(--dark-surface-active);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--dark-border);
-  margin-bottom: 1rem;
-}
-
-.business-form .form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.business-form .form-row input,
-.business-form .form-row select {
-  padding: 0.75rem;
-  background: var(--dark-bg);
-  border: 1px solid var(--dark-border);
-  border-radius: var(--border-radius-sm);
-  color: var(--dark-text-primary);
-  font-size: 0.95rem;
-}
-
-.business-form .form-row input:focus,
-.business-form .form-row select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.business-form .form-buttons {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.business-form .form-buttons button {
-  flex: 1;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.business-form .form-buttons button:first-child {
-  background: var(--primary-color);
-  color: white;
-}
-
-.business-form .form-buttons button:first-child:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-.business-form .form-buttons button:first-child:active {
-  transform: translateY(0);
-}
-
-.business-form .form-buttons button:last-child {
-  background: transparent;
-  border: 1px solid var(--dark-border);
-  color: var(--dark-text-secondary);
-}
-
-.business-form .form-buttons button:last-child:hover {
-  background: var(--dark-surface-hover);
-  border-color: var(--dark-text-tertiary);
-  color: var(--dark-text-primary);
-}
-
-@media (max-width: 480px) {
-  .businessDetails {
-    gap: 0.125rem;
-  }
-
-  .business-form {
-    padding: 1rem;
-  }
-
-  .business-form .form-buttons {
-    flex-direction: column;
-  }
-
-  .addButton {
-    width: 100%;
-    justify-content: center;
-  }
 }

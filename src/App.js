@@ -9,6 +9,7 @@ import Portfolio from "./components/Portfolio";
 import TotalValue from "./components/TotalValue";
 import Diagram from "./components/Diagram";
 import "./assets/styles/App.css";
+import logo from "./assets/img/logo.png";
 
 function App() {
   const [currency, setCurrency] = useState("rub");
@@ -21,7 +22,17 @@ function App() {
       <Bonds />
       <Shares />
       <PreciousMetals />
+
       <div className="блок">
+        <header className="ВерхняяСекция">
+          <div className="logo">
+            <img src={logo} alt="Logo" className="logo-image" />
+          </div>
+          <div className="header-buttons">
+            <button className="header-button">Сохранить</button>
+            <button className="header-button">Экспорт</button>
+          </div>
+        </header>
         <div className="перваяСекция">
           <PortfolioSearch />
         </div>
@@ -41,10 +52,6 @@ function App() {
         </div>
         <div className="третьяСекция">
           <Portfolio />
-        </div>
-        <div className="четвертаяСекция">
-          {" "}
-          <button>Сохранить</button> <button>экспорт</button>
         </div>
       </div>
     </div>
