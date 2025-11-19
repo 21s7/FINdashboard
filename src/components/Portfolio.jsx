@@ -30,6 +30,7 @@ const typeNames = {
   metal: "Драгоценные металлы",
   deposit: "Депозиты",
   realestate: "Недвижимость",
+  business: "Бизнес",
 };
 
 const typeIcons = {
@@ -40,6 +41,7 @@ const typeIcons = {
   metal: "💎",
   deposit: "💰",
   realestate: "🏠",
+  business: "🏢",
 };
 
 const Portfolio = () => {
@@ -83,8 +85,13 @@ const Portfolio = () => {
       <div className="portfolioGrid">
         {Object.entries(grouped).map(([type, assets]) => {
           const groupTotal = assets.reduce((sum, asset) => {
-            if (asset.type === "deposit") return sum + (asset.value || 0);
-            if (asset.type === "realestate") return sum + (asset.value || 0);
+            if (
+              asset.type === "deposit" ||
+              asset.type === "realestate" ||
+              asset.type === "business"
+            ) {
+              return sum + (asset.value || 0);
+            }
 
             const unitPrice =
               asset.type === "bond"
@@ -115,7 +122,11 @@ const Portfolio = () => {
               <div className="assetList">
                 {assets.map((asset) => {
                   let total = 0;
-                  if (asset.type === "deposit" || asset.type === "realestate") {
+                  if (
+                    asset.type === "deposit" ||
+                    asset.type === "realestate" ||
+                    asset.type === "business"
+                  ) {
                     total = asset.value || 0;
                   } else {
                     const unitPrice =
@@ -146,6 +157,19 @@ const Portfolio = () => {
                             )}
                             {asset.yieldPercent > 0 && (
                               <div>Доходность: {asset.yieldPercent}%</div>
+                            )}
+                          </div>
+                        ) : asset.type === "business" ? (
+                          <div className="businessDetails">
+                            <div>Тип: {asset.businessType}</div>
+                            {asset.monthlyProfit > 0 && (
+                              <div>
+                                Прибыль: {formatCurrency(asset.monthlyProfit)}
+                                /мес
+                              </div>
+                            )}
+                            {asset.profitMargin > 0 && (
+                              <div>Маржинальность: {asset.profitMargin}%</div>
                             )}
                           </div>
                         ) : (

@@ -1,11 +1,10 @@
-// src/components/DepositForm.jsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 
 const DepositForm = ({ onClose }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [amount, setAmount] = useState("");
   const [rate, setRate] = useState("");
@@ -52,48 +51,53 @@ const DepositForm = ({ onClose }) => {
     if (onClose) onClose();
   };
 
+  if (!isOpen) {
+    return (
+      <button onClick={() => setIsOpen(true)} className="addButton">
+        🏦 Добавить депозит
+      </button>
+    );
+  }
+
   return (
-    <div>
-      {isOpen ? (
-        <div className="form-row">
-          <input
-            type="text"
-            placeholder="Название депозита (необязательно)"
-            value={depositName}
-            onChange={(e) => setDepositName(e.target.value)}
-          />
+    <div className="deposit-form">
+      <div className="form-row">
+        <input
+          type="text"
+          placeholder="Название депозита (необязательно)"
+          value={depositName}
+          onChange={(e) => setDepositName(e.target.value)}
+        />
 
-          <input
-            type="number"
-            placeholder="Сумма (₽)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+        <input
+          type="number"
+          placeholder="Сумма (₽) *"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+        />
 
-          <input
-            type="number"
-            placeholder="Процентная ставка (%)"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
-          />
+        <input
+          type="number"
+          placeholder="Процентная ставка (%) *"
+          value={rate}
+          onChange={(e) => setRate(e.target.value)}
+          required
+        />
 
-          <input
-            type="number"
-            placeholder="Срок (мес.)"
-            value={months}
-            onChange={(e) => setMonths(e.target.value)}
-          />
+        <input
+          type="number"
+          placeholder="Срок (мес.) *"
+          value={months}
+          onChange={(e) => setMonths(e.target.value)}
+          required
+        />
+      </div>
 
-          <div className="form-buttons">
-            <button onClick={handleAddDeposit}>Добавить</button>
-            <button onClick={handleCancel}>Отмена</button>
-          </div>
-        </div>
-      ) : (
-        <button onClick={() => setIsOpen(true)} className="addButton">
-          🏦 Добавить депозит
-        </button>
-      )}
+      <div className="form-buttons">
+        <button onClick={handleAddDeposit}>Добавить депозит</button>
+        <button onClick={handleCancel}>Отмена</button>
+      </div>
     </div>
   );
 };

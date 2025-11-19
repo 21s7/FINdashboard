@@ -1,9 +1,9 @@
-// src/components/PortfolioSearch.jsx
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 import DepositForm from "./DepositForm";
 import RealEstateForm from "./RealEstateForm";
+import BusinessForm from "./BusinessForm";
 
 const formatPercentage = (value) => {
   if (value === undefined || value === null) return "—";
@@ -26,6 +26,7 @@ const getAssetTypeInRussian = (type) => {
     currency: "Валюты",
     crypto: "Криптовалюты",
     metal: "Драгоценные металлы",
+    business: "Бизнес",
   };
   return types[type] || type;
 };
@@ -36,6 +37,7 @@ const PortfolioSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDepositForm, setShowDepositForm] = useState(false);
   const [showRealEstateForm, setShowRealEstateForm] = useState(false);
+  const [showBusinessForm, setShowBusinessForm] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -81,6 +83,7 @@ const PortfolioSearch = () => {
   // Ключевые слова для форм
   const depositKeywords = useMemo(
     () => [
+      "счет",
       "вклад",
       "депозит",
       "банковский счет",
@@ -104,6 +107,7 @@ const PortfolioSearch = () => {
 
   const realEstateKeywords = useMemo(
     () => [
+      "дача",
       "квартира",
       "земля",
       "апартаменты",
@@ -130,12 +134,54 @@ const PortfolioSearch = () => {
     []
   );
 
+  const businessKeywords = useMemo(
+    () => [
+      "бизнес",
+      "компания",
+      "предприятие",
+      "стартап",
+      "фирма",
+      "предпринимательство",
+      "бизнес проект",
+      "собственный бизнес",
+      "малый бизнес",
+      "средний бизнес",
+      "крупный бизнес",
+      "франшиза",
+      "интернет бизнес",
+      "онлайн бизнес",
+      "производство",
+      "услуги",
+      "розничная торговля",
+      "оптовая торговля",
+      "кафе",
+      "ресторан",
+      "магазин",
+      "салон",
+      "студия",
+      "агенство",
+      "компания",
+      "business",
+      "company",
+      "startup",
+      "enterprise",
+      "firm",
+      "entrepreneurship",
+      "venture",
+      "corporation",
+      "LLC",
+      "inc",
+    ],
+    []
+  );
+
   useEffect(() => {
     if (!debouncedSearchTerm) {
       setFilteredAssets([]);
       setIsLoading(false);
       setShowDepositForm(false);
       setShowRealEstateForm(false);
+      setShowBusinessForm(false);
       return;
     }
 
@@ -150,9 +196,13 @@ const PortfolioSearch = () => {
       const isRealEstateSearch = realEstateKeywords.some((keyword) =>
         searchLower.includes(keyword.toLowerCase())
       );
+      const isBusinessSearch = businessKeywords.some((keyword) =>
+        searchLower.includes(keyword.toLowerCase())
+      );
 
       setShowDepositForm(isDepositSearch);
       setShowRealEstateForm(isRealEstateSearch);
+      setShowBusinessForm(isBusinessSearch);
 
       // Поиск обычных активов
       const results = allAssets
@@ -190,6 +240,7 @@ const PortfolioSearch = () => {
     formatPrice,
     depositKeywords,
     realEstateKeywords,
+    businessKeywords,
   ]);
 
   const handleSearchChange = useCallback((e) => {
@@ -227,6 +278,8 @@ const PortfolioSearch = () => {
       setShowDepositForm(false);
     } else if (formType === "realestate") {
       setShowRealEstateForm(false);
+    } else if (formType === "business") {
+      setShowBusinessForm(false);
     }
   }, []);
 
@@ -301,6 +354,34 @@ const PortfolioSearch = () => {
             </div>
           )}
 
+          {showBusinessForm && (
+            <div className="business-form-container">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <h3 style={{ margin: 0 }}>Добавить бизнес</h3>
+                <button
+                  onClick={() => handleCloseForm("business")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--dark-text-secondary)",
+                    fontSize: "1.25rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              <BusinessForm onClose={() => handleCloseForm("business")} />
+            </div>
+          )}
+
           {isLoading ? (
             <div className="loading">Загрузка...</div>
           ) : filteredAssets.length > 0 ? (
@@ -354,7 +435,7 @@ const PortfolioSearch = () => {
                 );
               })}
             </div>
-          ) : !showDepositForm && !showRealEstateForm ? (
+          ) : !showDepositForm && !showRealEstateForm && !showBusinessForm ? (
             <p>Активы не найдены</p>
           ) : null}
         </div>

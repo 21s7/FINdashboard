@@ -1,4 +1,3 @@
-// src/components/Diagram.jsx
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -40,6 +39,7 @@ const typeLabels = {
   metal: "Металлы",
   deposit: "Депозиты",
   realestate: "Недвижимость",
+  business: "Бизнес",
 };
 
 const CHART_TYPES = ["pie", "bar"];

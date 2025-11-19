@@ -1,5 +1,3 @@
-// src/slices/portfolioSlice.js
-
 import { createSlice } from "@reduxjs/toolkit";
 
 const portfolioSlice = createSlice({
@@ -11,7 +9,7 @@ const portfolioSlice = createSlice({
     addAsset: (state, action) => {
       const newAsset = action.payload;
 
-      // Для депозитов и недвижимости создаем уникальный ключ на основе всех данных
+      // Для депозитов, недвижимости и бизнеса создаем уникальный ключ на основе всех данных
       // чтобы они не объединялись
       let assetKey;
 
@@ -21,6 +19,9 @@ const portfolioSlice = createSlice({
       } else if (newAsset.type === "realestate") {
         // Для недвижимости используем комбинацию типа, названия и категории
         assetKey = `realestate-${newAsset.name}-${newAsset.category}-${Date.now()}`;
+      } else if (newAsset.type === "business") {
+        // Для бизнеса используем комбинацию типа, названия и типа бизнеса
+        assetKey = `business-${newAsset.name}-${newAsset.businessType}-${Date.now()}`;
       } else {
         // Для остальных активов используем старую логику
         assetKey = `${newAsset.type}-${newAsset.ticker || newAsset.code || newAsset.id}`;
@@ -29,8 +30,12 @@ const portfolioSlice = createSlice({
       // Добавляем timestamp для уникальности
       const uniqueId = `${assetKey}-${Date.now()}`;
 
-      // Для депозитов и недвижимости всегда добавляем как новый актив
-      if (newAsset.type === "deposit" || newAsset.type === "realestate") {
+      // Для депозитов, недвижимости и бизнеса всегда добавляем как новый актив
+      if (
+        newAsset.type === "deposit" ||
+        newAsset.type === "realestate" ||
+        newAsset.type === "business"
+      ) {
         state.assets.push({
           ...newAsset,
           portfolioId: uniqueId,

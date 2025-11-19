@@ -1,11 +1,10 @@
-// src/components/RealEstateForm.jsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
 
 const RealEstateForm = ({ onClose }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -51,57 +50,56 @@ const RealEstateForm = ({ onClose }) => {
     if (onClose) onClose();
   };
 
+  if (!isOpen) {
+    return (
+      <button onClick={() => setIsOpen(true)} className="addButton">
+        🏠 Добавить недвижимость
+      </button>
+    );
+  }
+
   return (
-    <div>
-      {isOpen ? (
-        <div className="form-row">
-          <input
-            type="text"
-            placeholder="Название объекта *"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+    <div className="realestate-form">
+      <div className="form-row">
+        <input
+          type="text"
+          placeholder="Название объекта *"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
-          <input
-            type="number"
-            placeholder="Стоимость (₽) *"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
+        <input
+          type="number"
+          placeholder="Стоимость (₽) *"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+        />
 
-          <input
-            type="number"
-            placeholder="Доходность (%)"
-            value={yieldPercent}
-            onChange={(e) => setYieldPercent(e.target.value)}
-          />
+        <input
+          type="number"
+          placeholder="Доходность (%)"
+          value={yieldPercent}
+          onChange={(e) => setYieldPercent(e.target.value)}
+        />
 
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="Жилая недвижимость">Жилая недвижимость</option>
-            <option value="Коммерческая недвижимость">
-              Коммерческая недвижимость
-            </option>
-            <option value="Земельные участки">Земельные участки</option>
-            <option value="Специального назначения">
-              Специального назначения
-            </option>
-          </select>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="Жилая недвижимость">Жилая недвижимость</option>
+          <option value="Коммерческая недвижимость">
+            Коммерческая недвижимость
+          </option>
+          <option value="Земельные участки">Земельные участки</option>
+          <option value="Специального назначения">
+            Специального назначения
+          </option>
+        </select>
+      </div>
 
-          <div className="form-buttons">
-            <button onClick={handleAddRealEstate}>Добавить</button>
-            <button onClick={handleCancel}>Отмена</button>
-          </div>
-        </div>
-      ) : (
-        <button onClick={() => setIsOpen(true)} className="addButton">
-          🏠 Добавить недвижимость
-        </button>
-      )}
+      <div className="form-buttons">
+        <button onClick={handleAddRealEstate}>Добавить недвижимость</button>
+        <button onClick={handleCancel}>Отмена</button>
+      </div>
     </div>
   );
 };
