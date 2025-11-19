@@ -1,3 +1,5 @@
+// src/slices/sharesSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {

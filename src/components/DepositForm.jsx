@@ -19,8 +19,6 @@ const DepositForm = ({ onClose }) => {
     const parsedRate = parseFloat(rate);
     const parsedMonths = parseInt(months, 10);
 
-    const interest = parsedAmount * (parsedRate / 100) * (parsedMonths / 12); // простые проценты
-
     // Создаем уникальное название для депозита
     const name =
       depositName ||
@@ -31,12 +29,12 @@ const DepositForm = ({ onClose }) => {
         type: "deposit",
         name: name,
         quantity: 1,
-        value: parsedAmount + interest,
+        value: parsedAmount, // ← Храним только начальную сумму
         initialAmount: parsedAmount,
-        interest,
+        interest: 0, // ← Показываем 0, будем рассчитывать при отображении
         rate: parsedRate,
         termMonths: parsedMonths,
-        yearChangePercent: (interest / parsedAmount) * 100,
+        yearChangePercent: parsedRate, // ← Годовая доходность = ставка
       })
     );
 

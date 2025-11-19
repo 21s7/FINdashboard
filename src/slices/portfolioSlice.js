@@ -1,3 +1,5 @@
+// src/slices/portfolioSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const portfolioSlice = createSlice({

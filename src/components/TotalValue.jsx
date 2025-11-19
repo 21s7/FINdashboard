@@ -48,11 +48,16 @@ const TotalValue = ({ currency, onCurrencyChange }) => {
     [totalValue, currency, exchangeRates]
   );
 
-  const formatCurrency = (num) =>
-    typeof num === "number"
-      ? num.toLocaleString("ru-RU", { minimumFractionDigits: 2 }) +
-        ` ${CURRENCY_SYMBOLS[currency] || ""}`
-      : "—";
+  const formatCurrency = (num) => {
+    if (typeof num !== "number") return "—";
+
+    const formattedNum = num.toLocaleString("ru-RU", {
+      minimumFractionDigits: 2,
+    });
+    const symbol = CURRENCY_SYMBOLS[currency] || "";
+
+    return `${formattedNum} ${symbol}`;
+  };
 
   const handleTotalClick = () => {
     const currentIndex = CURRENCY_ORDER.indexOf(currency);
@@ -85,26 +90,27 @@ const TotalValue = ({ currency, onCurrencyChange }) => {
           </span>
         </div>
 
-        <span
-          className="total-amount"
-          onClick={handleTotalClick}
-          style={{
-            cursor: "pointer",
-            padding: "1rem",
-            borderRadius: "var(--border-radius)",
-            transition: "var(--transition)",
-            display: "block",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "var(--dark-surface-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "transparent";
-          }}
-          title="Нажмите для смены валюты"
-        >
-          {formatCurrency(convertedTotal)}
-        </span>
+        <div className="total-value-wrapper">
+          <span
+            className="total-amount"
+            onClick={handleTotalClick}
+            style={{
+              cursor: "pointer",
+              padding: "1rem",
+              borderRadius: "var(--border-radius)",
+              transition: "var(--transition)",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "var(--dark-surface-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "transparent";
+            }}
+            title="Нажмите для смены валюты"
+          >
+            {formatCurrency(convertedTotal)}
+          </span>
+        </div>
 
         <div
           style={{

@@ -1,3 +1,5 @@
+// src/slices/store.js
+
 import { configureStore } from "@reduxjs/toolkit";
 import sharesReducer from "./sharesSlice";
 import currencyReducer from "./currencySlice";

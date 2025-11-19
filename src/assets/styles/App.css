@@ -808,6 +808,24 @@ textarea::placeholder {
   text-align: center;
 }
 
+/* Обновите стили для TotalValue */
+.total-value-container {
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+}
+
+/* Контейнер для суммы */
+.total-value-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap; /* Запрещаем перенос */
+  gap: 0.25rem; /* Небольшой отступ между числом и валютой */
+  width: 100%;
+  min-height: 80px; /* Минимальная высота чтобы не прыгало */
+}
+
 .total-amount {
   font-size: 4rem;
   font-weight: 900;
@@ -822,15 +840,58 @@ textarea::placeholder {
   letter-spacing: -0.02em;
   line-height: 1;
   text-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-  display: block;
+  display: inline-block; /* Изменено с block на inline-block */
   cursor: pointer;
   transition: var(--transition);
+  white-space: nowrap; /* Запрещаем перенос текста */
+  max-width: 100%; /* Ограничиваем ширину */
+  overflow: hidden; /* Скрываем переполнение */
+  text-overflow: ellipsis; /* Добавляем многоточие если не помещается */
 }
 
-.total-amount:hover {
-  transform: scale(1.02);
+/* Дополнительные медиа-запросы для адаптивности */
+@media (max-width: 1024px) {
+  .total-amount {
+    font-size: 3.5rem;
+  }
 }
 
+@media (max-width: 768px) {
+  .total-amount {
+    font-size: 3rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 70px;
+  }
+}
+
+@media (max-width: 640px) {
+  .total-amount {
+    font-size: 2.5rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .total-amount {
+    font-size: 2rem;
+  }
+
+  .total-value-wrapper {
+    min-height: 50px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+  .total-amount {
+    font-size: 1.75rem;
+  }
+}
 /* Стили для Diagram */
 .diagram-container {
   position: relative;

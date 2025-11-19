@@ -35,10 +35,10 @@ const typeNames = {
 const typeIcons = {
   share: "📈",
   bond: "📊",
-  currency: "💱",
+  currency: "💵",
   crypto: "₿",
-  metal: "🥇",
-  deposit: "🏦",
+  metal: "💎",
+  deposit: "💰",
   realestate: "🏠",
 };
 
