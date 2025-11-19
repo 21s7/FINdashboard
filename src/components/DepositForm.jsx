@@ -1,3 +1,5 @@
+// src/components/DepositForm.jsx
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
@@ -11,11 +13,38 @@ const DepositForm = ({ onClose }) => {
   const [months, setMonths] = useState("");
   const [depositName, setDepositName] = useState("");
 
+  // Функция для форматирования числа с разделителями тысяч
+  const formatNumber = (value) => {
+    const cleanValue = value.replace(/[.,]/g, "");
+    if (!cleanValue) return "";
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  // Функция для преобразования отформатированной строки в число
+  const parseFormattedNumber = (formattedValue) => {
+    return parseFloat(formattedValue.replace(/\./g, "")) || 0;
+  };
+
+  const handleAmountChange = (e) => {
+    const formatted = formatNumber(e.target.value);
+    setAmount(formatted);
+  };
+
+  const handleRateChange = (e) => {
+    const value = e.target.value.replace(/[^0-9.,]/g, "");
+    setRate(value);
+  };
+
+  const handleMonthsChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    setMonths(value);
+  };
+
   const handleAddDeposit = () => {
     if (!amount || !rate || !months) return;
 
-    const parsedAmount = parseFloat(amount);
-    const parsedRate = parseFloat(rate);
+    const parsedAmount = parseFormattedNumber(amount);
+    const parsedRate = parseFloat(rate.replace(",", ".")) || 0;
     const parsedMonths = parseInt(months, 10);
 
     // Создаем уникальное название для депозита
@@ -70,26 +99,26 @@ const DepositForm = ({ onClose }) => {
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Сумма (₽) *"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={handleAmountChange}
           required
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Процентная ставка (%) *"
           value={rate}
-          onChange={(e) => setRate(e.target.value)}
+          onChange={handleRateChange}
           required
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Срок (мес.) *"
           value={months}
-          onChange={(e) => setMonths(e.target.value)}
+          onChange={handleMonthsChange}
           required
         />
       </div>

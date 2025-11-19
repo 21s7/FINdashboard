@@ -1,3 +1,5 @@
+// src/components/BusinessForm.jsx
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
@@ -25,12 +27,42 @@ const BusinessForm = ({ onClose }) => {
     "Другое",
   ];
 
+  // Функция для форматирования числа с разделителями тысяч
+  const formatNumber = (value) => {
+    // Удаляем все точки и запятые для чистого числа
+    const cleanValue = value.replace(/[.,]/g, "");
+    if (!cleanValue) return "";
+
+    // Форматируем с точками как разделителями тысяч
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  // Функция для преобразования отформатированной строки в число
+  const parseFormattedNumber = (formattedValue) => {
+    return parseFloat(formattedValue.replace(/\./g, "")) || 0;
+  };
+
+  const handlePriceChange = (e) => {
+    const formatted = formatNumber(e.target.value);
+    setPrice(formatted);
+  };
+
+  const handleProfitMarginChange = (e) => {
+    const value = e.target.value.replace(/[^0-9.,]/g, "");
+    setProfitMargin(value);
+  };
+
+  const handleMonthlyProfitChange = (e) => {
+    const formatted = formatNumber(e.target.value);
+    setMonthlyProfit(formatted);
+  };
+
   const handleAddBusiness = () => {
     if (!businessName || !price || !monthlyProfit) return;
 
-    const parsedPrice = parseFloat(price);
-    const parsedMonthlyProfit = parseFloat(monthlyProfit);
-    const parsedProfitMargin = parseFloat(profitMargin || 0);
+    const parsedPrice = parseFormattedNumber(price);
+    const parsedMonthlyProfit = parseFormattedNumber(monthlyProfit);
+    const parsedProfitMargin = parseFloat(profitMargin.replace(",", ".")) || 0;
 
     // Рассчитываем годовую доходность
     const annualProfit = parsedMonthlyProfit * 12;
@@ -86,28 +118,25 @@ const BusinessForm = ({ onClose }) => {
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Цена бизнеса (₽) - Чистая прибыль за год × годы окупаемости *"
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={handlePriceChange}
           required
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Маржинальность (%)"
           value={profitMargin}
-          onChange={(e) => setProfitMargin(e.target.value)}
-          step="0.1"
-          min="0"
-          max="100"
+          onChange={handleProfitMarginChange}
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Чистая прибыль в месяц (₽) *"
           value={monthlyProfit}
-          onChange={(e) => setMonthlyProfit(e.target.value)}
+          onChange={handleMonthlyProfitChange}
           required
         />
 

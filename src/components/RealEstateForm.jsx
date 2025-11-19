@@ -1,3 +1,5 @@
+// src/components/RealEstateForm.jsx
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
@@ -12,11 +14,33 @@ const RealEstateForm = ({ onClose }) => {
   const [category, setCategory] = useState("Жилая недвижимость");
   const [address, setAddress] = useState("");
 
+  // Функция для форматирования числа с разделителями тысяч
+  const formatNumber = (value) => {
+    const cleanValue = value.replace(/[.,]/g, "");
+    if (!cleanValue) return "";
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  // Функция для преобразования отформатированной строки в число
+  const parseFormattedNumber = (formattedValue) => {
+    return parseFloat(formattedValue.replace(/\./g, "")) || 0;
+  };
+
+  const handlePriceChange = (e) => {
+    const formatted = formatNumber(e.target.value);
+    setPrice(formatted);
+  };
+
+  const handleYieldPercentChange = (e) => {
+    const value = e.target.value.replace(/[^0-9.,]/g, "");
+    setYieldPercent(value);
+  };
+
   const handleAddRealEstate = () => {
     if (!name || !price) return;
 
-    const parsedPrice = parseFloat(price);
-    const parsedYield = parseFloat(yieldPercent || 0);
+    const parsedPrice = parseFormattedNumber(price);
+    const parsedYield = parseFloat(yieldPercent.replace(",", ".")) || 0;
 
     // Создаем уникальное название для недвижимости
     const assetName =
@@ -70,18 +94,18 @@ const RealEstateForm = ({ onClose }) => {
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Стоимость (₽) *"
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={handlePriceChange}
           required
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Доходность (%)"
           value={yieldPercent}
-          onChange={(e) => setYieldPercent(e.target.value)}
+          onChange={handleYieldPercentChange}
         />
 
         <select value={category} onChange={(e) => setCategory(e.target.value)}>

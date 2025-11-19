@@ -1,3 +1,5 @@
+// src/components/Diagram.jsx
+
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
