@@ -67,31 +67,52 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
         ` ${CURRENCY_SYMBOLS[currency] || ""}`
       : "—";
 
-  const chartData = useMemo(() => {
+  // Функция для форматирования процентов
+  const formatPercentage = (value) => {
+    if (value === undefined || value === null) return "—";
+    return `${value.toFixed(1)}%`;
+  };
+
+  const { chartData, totalValue } = useMemo(() => {
     const sums = {};
+    let total = 0;
+
+    // Сначала считаем общую сумму в рублях
     assets.forEach((asset) => {
-      let total = 0;
+      let assetValue = 0;
       if (asset.type === "deposit") {
-        total = asset.value || 0;
+        assetValue = asset.value || 0;
       } else {
         const price =
           asset.type === "bond"
             ? asset.pricePercent
             : asset.price || asset.value || 0;
-        total =
+        assetValue =
           asset.type === "bond"
             ? (price / 100) * asset.quantity * 1000
             : price * asset.quantity;
       }
 
       if (!sums[asset.type]) sums[asset.type] = 0;
-      sums[asset.type] += total;
+      sums[asset.type] += assetValue;
+      total += assetValue;
     });
 
-    return Object.entries(sums).map(([type, value]) => ({
-      name: typeLabels[type] || type,
-      value: convertToCurrency(value),
-    }));
+    // Преобразуем в проценты
+    const data = Object.entries(sums).map(([type, value], index) => {
+      const percentage = total > 0 ? (value / total) * 100 : 0;
+      return {
+        name: typeLabels[type] || type,
+        value: percentage, // Процент вместо абсолютного значения
+        absoluteValue: convertToCurrency(value), // Абсолютное значение для тултипа
+        color: COLORS[index % COLORS.length], // Добавляем цвет для каждого актива
+      };
+    });
+
+    return {
+      chartData: data,
+      totalValue: total,
+    };
   }, [assets, currency, exchangeRates]);
 
   const handleChartClick = () => {
@@ -103,6 +124,170 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
   const getChartIcon = () => {
     return chartType === "pie" ? "📊" : "📈";
   };
+
+  // Кастомный тултип для круговой диаграммы
+  const PieCustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div
+          style={{
+            backgroundColor: "var(--dark-surface)",
+            border: "1px solid var(--dark-border)",
+            borderRadius: "var(--border-radius)",
+            padding: "0.75rem",
+            color: "var(--dark-text-primary)",
+          }}
+        >
+          <p style={{ margin: "0 0 0.25rem 0", fontWeight: "600" }}>
+            {data.name}
+          </p>
+          <p style={{ margin: "0 0 0.25rem 0", color: "var(--primary-color)" }}>
+            Доля: <strong>{formatPercentage(data.value)}</strong>
+          </p>
+          <p style={{ margin: 0, color: "var(--dark-text-secondary)" }}>
+            Стоимость: <strong>{data.absoluteValue}</strong>
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Кастомный тултип для гистограммы
+  const BarCustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      // Находим активный актив по имени (label - это имя категории на оси X)
+      const activeAsset = chartData.find((item) => item.name === label);
+
+      if (activeAsset) {
+        return (
+          <div
+            style={{
+              backgroundColor: "var(--dark-surface)",
+              border: "1px solid var(--dark-border)",
+              borderRadius: "var(--border-radius)",
+              padding: "0.75rem",
+              color: "var(--dark-text-primary)",
+            }}
+          >
+            <p style={{ margin: "0 0 0.25rem 0", fontWeight: "600" }}>
+              {activeAsset.name}
+            </p>
+            <p
+              style={{ margin: "0 0 0.25rem 0", color: "var(--primary-color)" }}
+            >
+              Доля: <strong>{formatPercentage(activeAsset.value)}</strong>
+            </p>
+            <p style={{ margin: 0, color: "var(--dark-text-secondary)" }}>
+              Стоимость: <strong>{activeAsset.absoluteValue}</strong>
+            </p>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
+  // Кастомная легенда для круговой диаграммы
+  const renderPieLegend = (props) => {
+    const { payload } = props;
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "0.75rem",
+          marginTop: "1rem",
+        }}
+      >
+        {payload.map((entry, index) => (
+          <div
+            key={`legend-${index}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              fontSize: "12px",
+              color: "var(--dark-text-secondary)",
+            }}
+          >
+            <div
+              style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: entry.color,
+                borderRadius: "2px",
+              }}
+            />
+            <span>
+              {chartData[index]?.name} (
+              {formatPercentage(chartData[index]?.value)})
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Кастомная легенда для гистограммы
+  const renderBarLegend = (props) => {
+    const { payload } = props;
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "0.75rem",
+          marginTop: "1rem",
+        }}
+      >
+        {payload.map((entry, index) => (
+          <div
+            key={`legend-${index}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              fontSize: "12px",
+              color: "var(--dark-text-secondary)",
+            }}
+          >
+            <div
+              style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: entry.color,
+                borderRadius: "2px",
+              }}
+            />
+            <span>
+              {entry.value} (
+              {formatPercentage(
+                chartData.find((item) => item.name === entry.value)?.value
+              )}
+              )
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Преобразуем данные для гистограммы с отдельными Bar
+  const barChartData = useMemo(() => {
+    // Создаем объект, где каждый актив будет иметь свое значение
+    const result = chartData.map((item) => {
+      const dataItem = { name: item.name };
+      chartData.forEach((asset) => {
+        dataItem[asset.name] = asset.name === item.name ? item.value : 0;
+      });
+      return dataItem;
+    });
+    return result;
+  }, [chartData]);
 
   return (
     <div className="card-shadow" style={{ height: "100%" }}>
@@ -162,6 +347,8 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
+                  // Убраны подписи рядом с секциями
+                  label={false}
                   outerRadius={100}
                   innerRadius={40}
                   dataKey="value"
@@ -171,24 +358,15 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(val) => formatCurrency(val)} />
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{
-                    fontSize: "12px",
-                    maxWidth: "90%",
-                    margin: "0 auto",
-                  }}
-                />
+                <Tooltip content={<PieCustomTooltip />} />
+                <Legend content={renderPieLegend} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
-                data={chartData}
-                margin={{ top: 10, right: 10, bottom: 60, left: 0 }}
+                data={barChartData}
+                margin={{ top: 10, right: 10, bottom: 80, left: 0 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -204,9 +382,10 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
                 />
                 <YAxis
                   tick={{ fontSize: 10, fill: "var(--dark-text-secondary)" }}
+                  tickFormatter={formatPercentage}
                 />
                 <Tooltip
-                  formatter={(val) => formatCurrency(val)}
+                  content={<BarCustomTooltip />}
                   contentStyle={{
                     backgroundColor: "var(--dark-surface)",
                     border: "1px solid var(--dark-border)",
@@ -214,11 +393,17 @@ const Diagram = ({ currency, chartType, onChartTypeChange }) => {
                     color: "var(--dark-text-primary)",
                   }}
                 />
-                <Bar
-                  dataKey="value"
-                  fill="var(--primary-color)"
-                  radius={[4, 4, 0, 0]}
-                />
+                {/* Создаем отдельный Bar для каждого актива */}
+                {chartData.map((asset, index) => (
+                  <Bar
+                    key={asset.name}
+                    dataKey={asset.name}
+                    fill={asset.color}
+                    radius={[4, 4, 0, 0]}
+                    name={asset.name}
+                  />
+                ))}
+                <Legend content={renderBarLegend} />
               </BarChart>
             </ResponsiveContainer>
           )}
