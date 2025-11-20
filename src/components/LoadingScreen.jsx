@@ -19,7 +19,7 @@ const LoadingScreen = ({ isLoading }) => {
     <div className={`loading-screen ${!isLoading ? "fade-out" : ""}`}>
       <div className="loading-content">
         <img src={logo} alt="Logo" className="loading-logo" />
-        <div className="loading-text">Загрузка портфеля...</div>
+        <div className="loading-text">Загрузка приложения...</div>
       </div>
     </div>
   );

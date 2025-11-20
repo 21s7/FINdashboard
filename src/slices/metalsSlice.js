@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const API_KEY = "cd0d2124f9083e64567f65d05ca5e454"; // резерв: cd0d2124f9083e64567f65d05ca5e454, 94fef8fa4a23b3565384c163705ec486, 72b3bbda75cf31c863c87e57b1b76393
+const API_KEY = "94fef8fa4a23b3565384c163705ec486"; // резерв: cd0d2124f9083e64567f65d05ca5e454, 94fef8fa4a23b3565384c163705ec486, 72b3bbda75cf31c863c87e57b1b76393
 const BASE_CURRENCY = "RUB";
 const METALS = ["XAU", "XAG", "XPT", "XPD"];
 const OUNCE_IN_GRAMS = 31.1035;

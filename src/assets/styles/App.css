@@ -358,7 +358,7 @@ textarea::placeholder {
 
 .assetGroup {
   background: var(--dark-surface);
-  border: 1px solid var(--dark-border);
+
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -375,7 +375,7 @@ textarea::placeholder {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.5rem;
-  background: var(--dark-surface-active);
+  background: var(--dark-surface);
   border-bottom: 1px solid var(--dark-divider);
 }
 
@@ -1251,5 +1251,276 @@ textarea::placeholder {
 
   .loading-text {
     font-size: 1rem;
+  }
+}
+
+/* ===== ШРИФТЫ ===== */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+/* Базовые стили */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+
+  background-color: var(--dark-bg);
+  color: var(--dark-text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Заголовки */
+.portfolioView .title {
+  font-family: "Inter", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark-text-primary);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.portfolioSearch h2,
+.diagram-header h3,
+.deposit-form-container h3,
+.realestate-form-container h3,
+.business-form-container h3 {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.groupTitle {
+  font-family: "Inter", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dark-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Текст в карточках */
+.assetName {
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--dark-text-primary);
+  margin-bottom: 0.375rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+
+.assetDetails,
+.depositDetails,
+.realestateDetails,
+.businessDetails {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--dark-text-secondary);
+}
+
+/* Кнопки */
+button,
+.header-button,
+.addButton,
+.form-buttons button {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Инпуты */
+input,
+select,
+textarea {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+/* Текст загрузочного экрана */
+.loading-text {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ===== ЧИСЛА И ЦЕНЫ ===== */
+.total-amount {
+  font-family: "Inter", sans-serif;
+  font-size: 4rem;
+  font-weight: 800;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  display: inline-block;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+.groupTotalAmount {
+  font-family: "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-text-primary);
+  margin-bottom: 0.25rem;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+.totalValue {
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-text-primary);
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+.assetPrice {
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+/* Проценты изменений */
+.change {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+.assetInfo .assetChange {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+/* Инпуты с числами */
+.assetControls .quantityInput {
+  font-family: "Inter", sans-serif;
+  width: 70px;
+  padding: 0.5rem;
+  background: var(--dark-bg);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--dark-text-primary);
+  text-align: center;
+  font-size: 0.9rem;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+/* Облигации и проценты */
+.unitPrice {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+/* Код и моноширинный только там где действительно нужен */
+code {
+  font-family: "JetBrains Mono", "SF Mono", "Monaco", "Inconsolata",
+    "Roboto Mono", monospace;
+  font-weight: 500;
+}
+
+/* Адаптивность для шрифтов */
+@media (max-width: 1024px) {
+  .total-amount {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .portfolioView .title {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .assetName {
+    font-size: 0.9rem;
+  }
+
+  .total-amount {
+    font-size: 3rem;
+    font-weight: 800;
+  }
+
+  .groupTotalAmount {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolioView .title {
+    font-size: 1.5rem;
+  }
+
+  .total-amount {
+    font-size: 2.5rem;
+  }
+
+  .loading-text {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .groupTotalAmount {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .total-amount {
+    font-size: 2rem;
   }
 }
