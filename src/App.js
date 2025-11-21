@@ -8,14 +8,17 @@ import PortfolioSearch from "./components/PortfolioSearch";
 import Portfolio from "./components/Portfolio";
 import TotalValue from "./components/TotalValue";
 import Diagram from "./components/Diagram";
-import "./assets/styles/App.css";
 import logo from "./assets/img/logo.png";
 import LoadingScreen from "./components/LoadingScreen";
+
+// Импорты стилей
+import "./assets/styles/App.css";
 
 function App() {
   const [currency, setCurrency] = useState("rub");
   const [chartType, setChartType] = useState("pie");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,6 +26,22 @@ function App() {
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Функция переключения темы
+  const toggleTheme = () => {
+    setIsDarkTheme((prev) => !prev);
+  };
+
+  // Применяем тему к body
+  useEffect(() => {
+    if (isDarkTheme) {
+      document.body.classList.remove("light-theme");
+      document.body.classList.add("dark-theme");
+    } else {
+      document.body.classList.remove("dark-theme");
+      document.body.classList.add("light-theme");
+    }
+  }, [isDarkTheme]);
 
   return (
     <>
@@ -40,8 +59,22 @@ function App() {
 
         <div className="блок">
           <header className="ВерхняяСекция">
-            <div className="logo">
+            <div
+              className="logo"
+              onClick={toggleTheme}
+              style={{ cursor: "pointer" }}
+            >
               <img src={logo} alt="Logo" className="logo-image" />
+              <span
+                style={{
+                  marginLeft: "10px",
+                  fontSize: "12px",
+                  color: "var(--dark-text-secondary)",
+                  transition: "var(--transition)",
+                }}
+              >
+                {isDarkTheme ? "🌙 Тёмная тема" : "☀️ Светлая тема"}
+              </span>
             </div>
             <div className="header-buttons">
               <button className="header-button">Сохранить</button>
@@ -55,9 +88,8 @@ function App() {
           <div className="втораяСекция">
             <div className="леваяЧастьВторойСекции">
               <TotalValue currency={currency} onCurrencyChange={setCurrency} />
-            </div>{" "}
+            </div>
             <div className="праваяЧастьВторойСекции">
-              {" "}
               <Diagram
                 currency={currency}
                 chartType={chartType}

@@ -1,5 +1,85 @@
 /* src/assets/styles/App.css */
 
+/* Светлая тема */
+.light-theme {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #3b82f6;
+
+  --secondary-color: #059669;
+  --secondary-dark: #047857;
+  --secondary-light: #10b981;
+
+  --accent-color: #7c3aed;
+  --accent-dark: #6d28d9;
+  --accent-light: #8b5cf6;
+
+  --error-color: #dc2626;
+  --warning-color: #d97706;
+  --info-color: #0891b2;
+
+  /* Фоны */
+  --dark-bg: #f8fafc;
+  --dark-surface: #ffffff;
+  --dark-surface-hover: #f1f5f9;
+  --dark-surface-active: #e2e8f0;
+
+  /* Текст */
+  --dark-text-primary: #0f172a;
+  --dark-text-secondary: #475569;
+  --dark-text-tertiary: #64748b;
+
+  /* Границы и разделители */
+  --dark-divider: #e2e8f0;
+  --dark-border: #cbd5e1;
+
+  /* Эффекты */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Темная тема (дефолтная) */
+.dark-theme {
+  --primary-color: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+
+  --secondary-color: #10b981;
+  --secondary-dark: #047857;
+  --secondary-light: #34d399;
+
+  --accent-color: #8b5cf6;
+  --accent-dark: #7c3aed;
+  --accent-light: #a78bfa;
+
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #06b6d4;
+
+  /* Фоны */
+  --dark-bg: #0a0a0a;
+  --dark-surface: #111111;
+  --dark-surface-hover: #1a1a1a;
+  --dark-surface-active: #262626;
+
+  /* Текст */
+  --dark-text-primary: #f8fafc;
+  --dark-text-secondary: #94a3b8;
+  --dark-text-tertiary: #64748b;
+
+  /* Границы и разделители */
+  --dark-divider: #1e293b;
+  --dark-border: #334155;
+
+  /* Эффекты */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
 /* Цветовая палитра - минималистичная темная тема */
 :root {
   --primary-color: #3b82f6;
