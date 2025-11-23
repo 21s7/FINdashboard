@@ -1,5 +1,53 @@
 // src/slices/currencySlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Маппинг валют на коды стран для флагов
+const currencyToCountry = {
+  AUD: "au", // Австралия
+  AZN: "az", // Азербайджан
+  GBP: "gb", // Великобритания
+  BYN: "by", // Беларусь
+  BGN: "bg", // Болгария
+  BRL: "br", // Бразилия
+  HUF: "hu", // Венгрия
+  VND: "vn", // Вьетнам
+  HKD: "hk", // Гонконг
+  GEL: "ge", // Грузия
+  DKK: "dk", // Дания
+  AED: "ae", // ОАЭ
+  USD: "us", // США
+  EUR: "eu", // Европейский союз
+  EGP: "eg", // Египет
+  INR: "in", // Индия
+  IDR: "id", // Индонезия
+  KZT: "kz", // Казахстан
+  CAD: "ca", // Канада
+  QAR: "qa", // Катар
+  KGS: "kg", // Киргизия
+  CNY: "cn", // Китай
+  MDL: "md", // Молдова
+  NZD: "nz", // Новая Зеландия
+  NOK: "no", // Норвегия
+  PLN: "pl", // Польша
+  RON: "ro", // Румыния
+  XDR: "un", // МВФ (специальные права заимствования)
+  SGD: "sg", // Сингапур
+  TJS: "tj", // Таджикистан
+  THB: "th", // Таиланд
+  TRY: "tr", // Турция
+  TMT: "tm", // Туркменистан
+  UZS: "uz", // Узбекистан
+  UAH: "ua", // Украина
+  CZK: "cz", // Чехия
+  SEK: "se", // Швеция
+  CHF: "ch", // Швейцария
+  RSD: "rs", // Сербия
+  ZAR: "za", // ЮАР
+  KRW: "kr", // Южная Корея
+  JPY: "jp", // Япония
+  RUB: "ru", // Россия
+};
 
 export const fetchCurrency = createAsyncThunk(
   "currency/fetchCurrency",
@@ -13,20 +61,26 @@ export const fetchCurrency = createAsyncThunk(
           ? +(((val.Value - val.Previous) / val.Previous) * 100).toFixed(2)
           : 0;
 
+      // Получаем код страны для иконки
+      const countryCode = currencyToCountry[code] || "un";
+      const iconUrl = `https://flagsapi.com/${countryCode.toUpperCase()}/flat/64.png`;
+
       return {
-        id: code, // Уникальный идентификатор
-        ticker: code, // Для единообразия с другими активами
+        id: code,
+        ticker: code,
         code,
         name: val.Name,
         price: val.Value,
         nominal: val.Nominal,
         value: val.Value,
-        yearChangePercent: dayChangePercent, // дневное изменение %
+        yearChangePercent: dayChangePercent,
         type: "currency",
+        iconUrl: iconUrl,
+        countryCode: countryCode,
       };
     });
 
-    // Добавляем российский рубль вручную с 0 изменением
+    // Добавляем российский рубль вручную
     currencies.unshift({
       id: "RUB",
       ticker: "RUB",
@@ -37,6 +91,8 @@ export const fetchCurrency = createAsyncThunk(
       value: 1,
       yearChangePercent: 0,
       type: "currency",
+      iconUrl: "https://flagsapi.com/RU/flat/64.png",
+      countryCode: "ru",
     });
 
     return currencies;
