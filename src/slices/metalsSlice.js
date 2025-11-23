@@ -1,6 +1,7 @@
 // src/slices/metalsSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import defaultIcon from "../assets/img/metalsDefoult.png";
 
 const API_KEY = "72b3bbda75cf31c863c87e57b1b76393"; // резерв: cd0d2124f9083e64567f65d05ca5e454, 94fef8fa4a23b3565384c163705ec486, 72b3bbda75cf31c863c87e57b1b76393
 const BASE_CURRENCY = "RUB";
@@ -73,6 +74,8 @@ export const fetchMetals = createAsyncThunk("metals/fetchMetals", async () => {
       priceUsd: null,
       lastUpdate: new Date(todayData.timestamp * 1000).toISOString(),
       type: "metal",
+      // Добавляем дефолтную иконку для металлов
+      iconUrl: defaultIcon,
     };
   });
 

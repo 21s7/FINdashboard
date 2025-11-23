@@ -37,17 +37,6 @@ const typeNames = {
   business: "Бизнес",
 };
 
-const typeIcons = {
-  share: "📈",
-  bond: "📊",
-  currency: "💵",
-  crypto: "₿",
-  metal: "💎",
-  deposit: "💰",
-  realestate: "🏠",
-  business: "🏢",
-};
-
 // Компонент для отображения иконки актива
 const AssetIcon = ({ asset, className = "" }) => {
   // Для облигаций используем дефолтную иконку России
@@ -164,7 +153,6 @@ const Portfolio = () => {
             <div key={type} className="assetGroup">
               <div className="groupHeader">
                 <div className="groupInfo">
-                  <span className="groupIcon">{typeIcons[type]}</span>
                   <h3 className="groupTitle">{typeNames[type] || type}</h3>
                 </div>
                 <div className="groupTotal">
