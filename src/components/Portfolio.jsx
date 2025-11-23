@@ -4,6 +4,9 @@ import React, { useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
 
+// Импортируем дефолтную иконку
+import defaultIcon from "../assets/img/defoult.png";
+
 const formatCurrency = (num, suffix = "₽") =>
   typeof num === "number"
     ? num.toLocaleString("ru-RU", { minimumFractionDigits: 2 }) + ` ${suffix}`
@@ -43,6 +46,46 @@ const typeIcons = {
   deposit: "💰",
   realestate: "🏠",
   business: "🏢",
+};
+
+// Компонент для отображения иконки актива
+const AssetIcon = ({ asset, className = "" }) => {
+  const showDefaultIcon =
+    !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
+
+  if (showDefaultIcon) {
+    return (
+      <div className={`asset-icon-default ${className}`}>
+        <img src={defaultIcon} alt="Default" className="default-icon-img" />
+      </div>
+    );
+  }
+
+  const handleImageError = (e) => {
+    // Если иконка не загружается, заменяем на дефолтную
+    e.target.style.display = "none";
+    const nextSibling = e.target.nextSibling;
+    if (nextSibling) {
+      nextSibling.style.display = "block";
+    }
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <img
+        src={asset.iconUrl}
+        alt={asset.name}
+        className={`asset-icon ${className}`}
+        onError={handleImageError}
+      />
+      <div
+        className={`asset-icon-default ${className}`}
+        style={{ display: "none" }}
+      >
+        <img src={defaultIcon} alt="Default" className="default-icon-img" />
+      </div>
+    </div>
+  );
 };
 
 const Portfolio = () => {
@@ -143,21 +186,9 @@ const Portfolio = () => {
                   return (
                     <div key={asset.portfolioId} className="assetCard">
                       <div className="assetInfo">
-                        {/* Добавляем иконку для акций и криптовалют */}
+                        {/* Добавляем иконку для всех активов */}
                         <div className="assetHeader">
-                          {(asset.type === "share" ||
-                            asset.type === "crypto") &&
-                            asset.iconUrl && (
-                              <img
-                                src={asset.iconUrl}
-                                alt={asset.name}
-                                className="assetIcon"
-                                onError={(e) => {
-                                  // Если иконка не загружается, скрываем её
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            )}
+                          <AssetIcon asset={asset} className="assetIcon" />
                           <div className="assetName">{asset.name}</div>
                         </div>
 

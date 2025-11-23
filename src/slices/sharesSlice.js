@@ -8,6 +8,10 @@ const customLogos = {
     "https://img.logo.dev/name/ya.ru?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
   RU000A107UL4:
     "https://img.logo.dev/tbank.ru?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
+  RU000A108X38:
+    "https://img.logo.dev/name/x5?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
+  RU000A10B5G8:
+    "https://img.logo.dev/fix-price.com?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
 
   // Добавьте другие кастомные логотипы здесь по формату:
   // "ISIN_CODE": "URL_ЛОГОТИПА",

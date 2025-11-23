@@ -7,6 +7,9 @@ import DepositForm from "./DepositForm";
 import RealEstateForm from "./RealEstateForm";
 import BusinessForm from "./BusinessForm";
 
+// Импортируем дефолтную иконку
+import defaultIcon from "../assets/img/defoult.png";
+
 const formatPercentage = (value) => {
   if (value === undefined || value === null) return "—";
   return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
@@ -31,6 +34,47 @@ const getAssetTypeInRussian = (type) => {
     business: "Бизнес",
   };
   return types[type] || type;
+};
+
+// Компонент для отображения иконки актива
+const AssetIcon = ({ asset, className = "" }) => {
+  const showDefaultIcon =
+    !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
+
+  if (showDefaultIcon) {
+    return (
+      <div className={`asset-icon-default ${className}`}>
+        <img src={defaultIcon} alt="Default" className="default-icon-img" />
+      </div>
+    );
+  }
+
+  const handleImageError = (e) => {
+    // Если иконка не загружается, заменяем на дефолтную
+    e.target.style.display = "none";
+    const parent = e.target.parentElement;
+    const defaultIcon = parent.querySelector(".asset-icon-default");
+    if (defaultIcon) {
+      defaultIcon.style.display = "block";
+    }
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <img
+        src={asset.iconUrl}
+        alt={asset.name}
+        className={`asset-icon ${className}`}
+        onError={handleImageError}
+      />
+      <div
+        className={`asset-icon-default ${className}`}
+        style={{ display: "none" }}
+      >
+        <img src={defaultIcon} alt="Default" className="default-icon-img" />
+      </div>
+    </div>
+  );
 };
 
 const PortfolioSearch = () => {
@@ -401,19 +445,9 @@ const PortfolioSearch = () => {
                     onMouseLeave={() => setHoveredAsset(null)}
                   >
                     <div className="assetInfo">
-                      {/* Добавляем иконку для акций и криптовалют */}
+                      {/* Добавляем иконку для всех активов */}
                       <div className="assetHeader">
-                        {(asset.type === "share" || asset.type === "crypto") &&
-                          asset.iconUrl && (
-                            <img
-                              src={asset.iconUrl}
-                              alt={asset.name}
-                              className="assetIcon"
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                              }}
-                            />
-                          )}
+                        <AssetIcon asset={asset} className="assetIcon" />
                         <div className="assetName truncate">
                           {asset.name} ({asset.ticker || asset.code || asset.id}
                           )
