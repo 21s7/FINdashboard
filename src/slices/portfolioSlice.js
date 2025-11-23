@@ -1,3 +1,5 @@
+// src/slices/portfolioSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const portfolioSlice = createSlice({
@@ -49,16 +51,18 @@ const portfolioSlice = createSlice({
         );
 
         if (existingIndex >= 0) {
-          // Обновляем существующий актив
+          // Обновляем существующий актив, сохраняем iconUrl если есть
           state.assets[existingIndex] = {
             ...state.assets[existingIndex],
             ...newAsset,
             quantity:
               state.assets[existingIndex].quantity + (newAsset.quantity || 1),
             portfolioId: state.assets[existingIndex].portfolioId, // Сохраняем старый ID
+            // Сохраняем iconUrl если он пришел в новом ассете
+            ...(newAsset.iconUrl && { iconUrl: newAsset.iconUrl }),
           };
         } else {
-          // Добавляем новый актив
+          // Добавляем новый актив с iconUrl
           state.assets.push({
             ...newAsset,
             portfolioId: uniqueId,

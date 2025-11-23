@@ -1604,3 +1604,71 @@ code {
     font-size: 2rem;
   }
 }
+/* Добавьте эти стили в конец файла App.css */
+
+/* Стили для иконок активов */
+.assetHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.assetIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--dark-border);
+  background: var(--dark-surface);
+}
+
+.assetCard .assetIcon {
+  width: 28px;
+  height: 28px;
+}
+
+.assetItem .assetIcon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Адаптивность для иконок */
+@media (max-width: 768px) {
+  .assetIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .assetCard .assetIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .assetItem .assetIcon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .assetHeader {
+    gap: 0.5rem;
+  }
+
+  .assetIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .assetCard .assetIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .assetItem .assetIcon {
+    width: 18px;
+    height: 18px;
+  }
+}

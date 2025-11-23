@@ -26,12 +26,22 @@ export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
   const priceIndex = marketDataCols.indexOf("LAST");
   const yearChangeIndex = marketDataCols.indexOf("LASTTOPREVPRICE");
 
-  // Создаем маппинг тикеров к именам из securities
+  // Получаем ISIN коды из securities для иконок
   const secCols = securitiesData.securities.columns;
   const secRows = securitiesData.securities.data;
-  const nameMap = {};
+
+  const secIdIndexSec = secCols.indexOf("SECID");
+  const isinIndex = secCols.indexOf("ISIN");
+  const nameIndexSec = secCols.indexOf("SECNAME");
+
+  // Создаем маппинг тикеров к данным
+  const securitiesMap = {};
   secRows.forEach((row) => {
-    nameMap[row[secCols.indexOf("SECID")]] = row[secCols.indexOf("SECNAME")];
+    const ticker = row[secIdIndexSec];
+    securitiesMap[ticker] = {
+      name: row[nameIndexSec],
+      isin: row[isinIndex],
+    };
   });
 
   return marketDataRows
@@ -39,17 +49,25 @@ export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
       const ticker = row[secIdIndex];
       const price = row[priceIndex];
       const yearChange = row[yearChangeIndex];
+      const securityData = securitiesMap[ticker];
 
       // LASTTOPREVPRICE уже содержит процентное изменение
       const yearChangePercent = typeof yearChange === "number" ? yearChange : 0;
 
+      // Генерируем URL иконки если есть ISIN
+      const iconUrl = securityData?.isin
+        ? `https://invest-brands.cdn-tinkoff.ru/${securityData.isin}x160.png`
+        : null;
+
       return {
         ticker,
-        name: nameMap[ticker] || row[nameIndex],
+        name: securityData?.name || row[nameIndex],
         price: price || "—",
-        yearChangeValue: 0, // Можно рассчитать при необходимости
+        yearChangeValue: 0,
         yearChangePercent: parseFloat(yearChangePercent.toFixed(2)),
         type: "share",
+        isin: securityData?.isin,
+        iconUrl: iconUrl,
       };
     })
     .filter((asset) => asset.ticker && asset.name);

@@ -401,8 +401,22 @@ const PortfolioSearch = () => {
                     onMouseLeave={() => setHoveredAsset(null)}
                   >
                     <div className="assetInfo">
-                      <div className="assetName truncate">
-                        {asset.name} ({asset.ticker || asset.code || asset.id})
+                      {/* Добавляем иконку для акций */}
+                      <div className="assetHeader">
+                        {asset.type === "share" && asset.iconUrl && (
+                          <img
+                            src={asset.iconUrl}
+                            alt={asset.name}
+                            className="assetIcon"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        )}
+                        <div className="assetName truncate">
+                          {asset.name} ({asset.ticker || asset.code || asset.id}
+                          )
+                        </div>
                       </div>
                       <div className="assetType">{asset.typeRussian}</div>
                       <div className="assetPrice">{asset.displayPrice}</div>

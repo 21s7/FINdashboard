@@ -1,4 +1,5 @@
 // src/components/Portfolio.jsx
+
 import React, { useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
@@ -142,7 +143,21 @@ const Portfolio = () => {
                   return (
                     <div key={asset.portfolioId} className="assetCard">
                       <div className="assetInfo">
-                        <div className="assetName">{asset.name}</div>
+                        {/* Добавляем иконку для акций */}
+                        <div className="assetHeader">
+                          {asset.type === "share" && asset.iconUrl && (
+                            <img
+                              src={asset.iconUrl}
+                              alt={asset.name}
+                              className="assetIcon"
+                              onError={(e) => {
+                                // Если иконка не загружается, скрываем её
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                          <div className="assetName">{asset.name}</div>
+                        </div>
 
                         {asset.type === "deposit" ? (
                           <div className="depositDetails">
