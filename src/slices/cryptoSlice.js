@@ -11,7 +11,9 @@ export const fetchCrypto = createAsyncThunk("crypto/fetchCrypto", async () => {
     id: coin.id,
     name: coin.name,
     price: coin.current_price,
-    yearChangePercent: coin.price_change_percentage_24h, // дневное изменение %
+    yearChangePercent: coin.price_change_percentage_24h,
+    iconUrl: coin.image, // Добавляем URL иконки
+    symbol: coin.symbol, // Добавляем символ для единообразия
   }));
 });
 

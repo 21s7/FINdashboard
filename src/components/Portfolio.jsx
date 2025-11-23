@@ -143,19 +143,21 @@ const Portfolio = () => {
                   return (
                     <div key={asset.portfolioId} className="assetCard">
                       <div className="assetInfo">
-                        {/* Добавляем иконку для акций */}
+                        {/* Добавляем иконку для акций и криптовалют */}
                         <div className="assetHeader">
-                          {asset.type === "share" && asset.iconUrl && (
-                            <img
-                              src={asset.iconUrl}
-                              alt={asset.name}
-                              className="assetIcon"
-                              onError={(e) => {
-                                // Если иконка не загружается, скрываем её
-                                e.target.style.display = "none";
-                              }}
-                            />
-                          )}
+                          {(asset.type === "share" ||
+                            asset.type === "crypto") &&
+                            asset.iconUrl && (
+                              <img
+                                src={asset.iconUrl}
+                                alt={asset.name}
+                                className="assetIcon"
+                                onError={(e) => {
+                                  // Если иконка не загружается, скрываем её
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            )}
                           <div className="assetName">{asset.name}</div>
                         </div>
 
