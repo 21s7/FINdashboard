@@ -2,6 +2,17 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+// Кастомные логотипы для конкретных ISIN
+const customLogos = {
+  RU000A107T19:
+    "https://img.logo.dev/name/ya.ru?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
+  RU000A107UL4:
+    "https://img.logo.dev/tbank.ru?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
+
+  // Добавьте другие кастомные логотипы здесь по формату:
+  // "ISIN_CODE": "URL_ЛОГОТИПА",
+};
+
 export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
   const [securitiesRes, marketDataRes] = await Promise.all([
     fetch(
@@ -54,10 +65,18 @@ export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
       // LASTTOPREVPRICE уже содержит процентное изменение
       const yearChangePercent = typeof yearChange === "number" ? yearChange : 0;
 
-      // Генерируем URL иконки если есть ISIN
-      const iconUrl = securityData?.isin
-        ? `https://invest-brands.cdn-tinkoff.ru/${securityData.isin}x160.png`
-        : null;
+      // Получаем ISIN для проверки кастомного логотипа
+      const isin = securityData?.isin;
+
+      // Определяем URL иконки: сначала проверяем кастомные логотипы, затем стандартные
+      let iconUrl = null;
+      if (isin && customLogos[isin]) {
+        // Используем кастомный логотип если он есть
+        iconUrl = customLogos[isin];
+      } else if (isin) {
+        // Используем стандартный URL если кастомного нет
+        iconUrl = `https://invest-brands.cdn-tinkoff.ru/${isin}x160.png`;
+      }
 
       return {
         ticker,
@@ -66,8 +85,9 @@ export const fetchShares = createAsyncThunk("shares/fetchShares", async () => {
         yearChangeValue: 0,
         yearChangePercent: parseFloat(yearChangePercent.toFixed(2)),
         type: "share",
-        isin: securityData?.isin,
+        isin: isin,
         iconUrl: iconUrl,
+        hasCustomLogo: !!(isin && customLogos[isin]), // Флаг кастомного логотипа
       };
     })
     .filter((asset) => asset.ticker && asset.name);
@@ -79,12 +99,54 @@ const sharesSlice = createSlice({
     items: [],
     status: "idle",
     error: null,
+    customLogos: customLogos, // Сохраняем кастомные логотипы в состоянии
   },
   reducers: {
     clearItems: (state) => {
       state.items = [];
       state.status = "idle";
       state.error = null;
+    },
+    // Новый редюсер для добавления кастомных логотипов
+    addCustomLogo: (state, action) => {
+      const { isin, logoUrl } = action.payload;
+      state.customLogos[isin] = logoUrl;
+
+      // Обновляем иконки в существующих элементах
+      state.items.forEach((item) => {
+        if (item.isin === isin) {
+          item.iconUrl = logoUrl;
+          item.hasCustomLogo = true;
+        }
+      });
+    },
+    // Редюсер для удаления кастомного логотипа
+    removeCustomLogo: (state, action) => {
+      const isin = action.payload;
+      delete state.customLogos[isin];
+
+      // Возвращаем стандартные иконки для элементов
+      state.items.forEach((item) => {
+        if (item.isin === isin) {
+          item.iconUrl = item.isin
+            ? `https://invest-brands.cdn-tinkoff.ru/${item.isin}x160.png`
+            : null;
+          item.hasCustomLogo = false;
+        }
+      });
+    },
+    // Редюсер для обновления нескольких логотипов сразу
+    updateCustomLogos: (state, action) => {
+      const logos = action.payload;
+      Object.assign(state.customLogos, logos);
+
+      // Обновляем иконки в существующих элементах
+      state.items.forEach((item) => {
+        if (item.isin && logos[item.isin]) {
+          item.iconUrl = logos[item.isin];
+          item.hasCustomLogo = true;
+        }
+      });
     },
   },
   extraReducers: (builder) => {
@@ -94,7 +156,17 @@ const sharesSlice = createSlice({
       })
       .addCase(fetchShares.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = action.payload;
+        // Применяем кастомные логотипы к загруженным данным
+        state.items = action.payload.map((item) => {
+          if (item.isin && state.customLogos[item.isin]) {
+            return {
+              ...item,
+              iconUrl: state.customLogos[item.isin],
+              hasCustomLogo: true,
+            };
+          }
+          return item;
+        });
       })
       .addCase(fetchShares.rejected, (state, action) => {
         state.status = "failed";
@@ -103,5 +175,11 @@ const sharesSlice = createSlice({
   },
 });
 
-export const { clearItems } = sharesSlice.actions;
+export const {
+  clearItems,
+  addCustomLogo,
+  removeCustomLogo,
+  updateCustomLogos,
+} = sharesSlice.actions;
+
 export default sharesSlice.reducer;

@@ -1604,7 +1604,6 @@ code {
     font-size: 2rem;
   }
 }
-/* Добавьте эти стили в конец файла App.css */
 
 /* Стили для иконок активов */
 .assetHeader {
@@ -1620,7 +1619,6 @@ code {
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
-  border: 1px solid var(--dark-border);
   background: var(--dark-surface);
 }
 
