@@ -12,7 +12,8 @@ const customLogos = {
     "https://img.logo.dev/name/x5?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
   RU000A10B5G8:
     "https://img.logo.dev/fix-price.com?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&size=160&format=png&retina=true",
-
+  RU0009029557:
+    "https://img.logo.dev/name/%D1%81%D0%B1%D0%B5%D1%80?token=pk_FE2qDcjpSiSZKmgWCG-jQQ&retina=true",
   // Добавьте другие кастомные логотипы здесь по формату:
   // "ISIN_CODE": "URL_ЛОГОТИПА",
 };

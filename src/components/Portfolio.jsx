@@ -50,6 +50,18 @@ const typeIcons = {
 
 // Компонент для отображения иконки актива
 const AssetIcon = ({ asset, className = "" }) => {
+  // Для облигаций используем дефолтную иконку России
+  if (asset.type === "bond") {
+    return (
+      <div className={`asset-icon-default ${className}`}>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_Arms_of_the_Russian_Federation.svg"
+          alt="Russian Federation"
+          className="default-icon-img"
+        />
+      </div>
+    );
+  }
   const showDefaultIcon =
     !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
 

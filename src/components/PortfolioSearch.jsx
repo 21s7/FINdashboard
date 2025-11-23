@@ -38,6 +38,18 @@ const getAssetTypeInRussian = (type) => {
 
 // Компонент для отображения иконки актива
 const AssetIcon = ({ asset, className = "" }) => {
+  if (asset.type === "bond") {
+    return (
+      <div className={`asset-icon-default ${className}`}>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_Arms_of_the_Russian_Federation.svg"
+          alt="Russian Federation"
+          className="default-icon-img"
+        />
+      </div>
+    );
+  }
+
   const showDefaultIcon =
     !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
 

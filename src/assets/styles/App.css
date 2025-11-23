@@ -1744,3 +1744,15 @@ code {
     height: 18px;
   }
 }
+
+/* Стили для иконок облигаций (герб России) */
+.asset-icon-default img.default-icon-img {
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* Особые стили для иконок облигаций */
+.asset-icon-default[style*="Coat_of_Arms"] img {
+  background: linear-gradient(135deg, #fff 0%, #e6e6e6 100%);
+  border: 1px solid var(--dark-border);
+}

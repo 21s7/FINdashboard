@@ -77,6 +77,8 @@ export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
         lastPrice: typeof lastPrice === "number" ? lastPrice : null,
         yearChangePercent: dayChangePercent,
         type: "bond",
+        iconUrl:
+          "https://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_Arms_of_the_Russian_Federation.svg", // Дефолтная иконка для облигаций
       };
     })
     .filter((bond) => bond.ticker && bond.name);
