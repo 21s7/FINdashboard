@@ -1,6 +1,9 @@
 // src/slices/portfolioSlice.js
 
 import { createSlice } from "@reduxjs/toolkit";
+import defaultBusiness from "../assets/img/defoultBuisnes.png";
+import defaultDeposit from "../assets/img/defoultDeposit.png";
+import defaultRealEstate from "../assets/img/defoultRealEstate.png";
 
 const portfolioSlice = createSlice({
   name: "portfolio",
@@ -18,12 +21,18 @@ const portfolioSlice = createSlice({
       if (newAsset.type === "deposit") {
         // Для депозитов используем комбинацию типа, ставки и срока
         assetKey = `deposit-${newAsset.rate}-${newAsset.termMonths}-${Date.now()}`;
+        // Добавляем иконку для депозитов
+        newAsset.iconUrl = defaultDeposit;
       } else if (newAsset.type === "realestate") {
         // Для недвижимости используем комбинацию типа, названия и категории
         assetKey = `realestate-${newAsset.name}-${newAsset.category}-${Date.now()}`;
+        // Добавляем иконку для недвижимости
+        newAsset.iconUrl = defaultRealEstate;
       } else if (newAsset.type === "business") {
         // Для бизнеса используем комбинацию типа, названия и типа бизнеса
         assetKey = `business-${newAsset.name}-${newAsset.businessType}-${Date.now()}`;
+        // Добавляем иконку для бизнеса
+        newAsset.iconUrl = defaultBusiness;
       } else {
         // Для остальных активов используем старую логику
         assetKey = `${newAsset.type}-${newAsset.ticker || newAsset.code || newAsset.id}`;

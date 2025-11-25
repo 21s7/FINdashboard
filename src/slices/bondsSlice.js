@@ -1,6 +1,8 @@
 // src/slices/bondsSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import defaultIcon from "../assets/img/defoultIcon.png";
+import ruBondsIcon from "../assets/img/RuBonds.png";
 
 export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
   // Запрос к нескольким доскам облигаций
@@ -70,6 +72,13 @@ export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
         );
       }
 
+      // Определяем иконку для облигации
+      const isOFZ =
+        name?.includes("ОФЗ") ||
+        ticker?.includes("OFZ") ||
+        name?.toLowerCase().includes("федерал");
+      const iconUrl = isOFZ ? ruBondsIcon : defaultIcon;
+
       return {
         ticker,
         name,
@@ -77,8 +86,8 @@ export const fetchBonds = createAsyncThunk("bonds/fetchBonds", async () => {
         lastPrice: typeof lastPrice === "number" ? lastPrice : null,
         yearChangePercent: dayChangePercent,
         type: "bond",
-        iconUrl:
-          "https://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_Arms_of_the_Russian_Federation.svg", // Дефолтная иконка для облигаций
+        iconUrl: iconUrl,
+        isOFZ: isOFZ, // Добавляем флаг для удобства
       };
     })
     .filter((bond) => bond.ticker && bond.name);

@@ -1,9 +1,13 @@
 // src/slices/metalsSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import defaultIcon from "../assets/img/metalsDefoult.png";
+import defaultIcon from "../assets/img/defoultIcon.png";
+import goldIcon from "../assets/img/gold.png";
+import silverIcon from "../assets/img/silver.png";
+import platinumIcon from "../assets/img/platinum.png";
+import palladiumIcon from "../assets/img/palladium.png";
 
-const API_KEY = "72b3bbda75cf31c863c87e57b1b76393"; // резерв: cd0d2124f9083e64567f65d05ca5e454, 94fef8fa4a23b3565384c163705ec486, 72b3bbda75cf31c863c87e57b1b76393
+const API_KEY = "72b3bbda75cf31c863c87e57b1b76393";
 const BASE_CURRENCY = "RUB";
 const METALS = ["XAU", "XAG", "XPT", "XPD"];
 const OUNCE_IN_GRAMS = 31.1035;
@@ -13,6 +17,14 @@ const METAL_NAMES = {
   XAG: "Серебро",
   XPT: "Платина",
   XPD: "Палладий",
+};
+
+// Маппинг металлов на иконки
+const METAL_ICONS = {
+  XAU: goldIcon,
+  XAG: silverIcon,
+  XPT: platinumIcon,
+  XPD: palladiumIcon,
 };
 
 // Получаем предыдущий рабочий день (учитывая выходные)
@@ -74,12 +86,12 @@ export const fetchMetals = createAsyncThunk("metals/fetchMetals", async () => {
       priceUsd: null,
       lastUpdate: new Date(todayData.timestamp * 1000).toISOString(),
       type: "metal",
-      // Добавляем дефолтную иконку для металлов
-      iconUrl: defaultIcon,
+      // Используем специальные иконки для металлов
+      iconUrl: METAL_ICONS[symbol] || defaultIcon,
     };
   });
 
-  return result.filter(Boolean); // отбрасываем null в случае отсутствия данных
+  return result.filter(Boolean);
 });
 
 const metalsSlice = createSlice({

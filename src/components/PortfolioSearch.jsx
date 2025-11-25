@@ -7,8 +7,16 @@ import DepositForm from "./DepositForm";
 import RealEstateForm from "./RealEstateForm";
 import BusinessForm from "./BusinessForm";
 
-// Импортируем дефолтную иконку
-import defaultIcon from "../assets/img/defoult.png";
+// Импортируем все иконки
+import defaultIcon from "../assets/img/defoultIcon.png";
+import defaultBusiness from "../assets/img/defoultBuisnes.png";
+import defaultDeposit from "../assets/img/defoultDeposit.png";
+import defaultRealEstate from "../assets/img/defoultRealEstate.png";
+import goldIcon from "../assets/img/gold.png";
+import silverIcon from "../assets/img/silver.png";
+import platinumIcon from "../assets/img/platinum.png";
+import palladiumIcon from "../assets/img/palladium.png";
+import ruBondsIcon from "../assets/img/RuBonds.png";
 
 const formatPercentage = (value) => {
   if (value === undefined || value === null) return "—";
@@ -38,18 +46,50 @@ const getAssetTypeInRussian = (type) => {
 
 // Компонент для отображения иконки актива
 const AssetIcon = ({ asset, className = "" }) => {
+  // Для облигаций ОФЗ используем специальную иконку
   if (asset.type === "bond") {
+    // Проверяем, является ли это ОФЗ
+    const isOFZ =
+      asset.name?.includes("ОФЗ") ||
+      asset.ticker?.includes("OFZ") ||
+      asset.name?.toLowerCase().includes("федерал");
+
+    if (isOFZ) {
+      return (
+        <div className={`asset-icon-default bond-ofz-icon ${className}`}>
+          <img src={ruBondsIcon} alt="OFZ Bond" className="default-icon-img" />
+        </div>
+      );
+    }
+
+    // Для остальных облигаций - дефолтная иконка
     return (
       <div className={`asset-icon-default ${className}`}>
-        <img
-          src="https://commons.wikimedia.org/wiki/Special:FilePath/Coat_of_Arms_of_the_Russian_Federation.svg"
-          alt="Russian Federation"
-          className="default-icon-img"
-        />
+        <img src={defaultIcon} alt="Bond" className="default-icon-img" />
       </div>
     );
   }
 
+  // Для металлов используем специальные иконки
+  if (asset.type === "metal") {
+    const metalIcons = {
+      XAU: goldIcon,
+      XAG: silverIcon,
+      XPT: platinumIcon,
+      XPD: palladiumIcon,
+    };
+
+    const metalIcon = metalIcons[asset.ticker];
+    if (metalIcon) {
+      return (
+        <div className={`asset-icon-default metal-icon ${className}`}>
+          <img src={metalIcon} alt={asset.name} className="default-icon-img" />
+        </div>
+      );
+    }
+  }
+
+  // Для остальных активов проверяем наличие иконки
   const showDefaultIcon =
     !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
 
@@ -65,9 +105,9 @@ const AssetIcon = ({ asset, className = "" }) => {
     // Если иконка не загружается, заменяем на дефолтную
     e.target.style.display = "none";
     const parent = e.target.parentElement;
-    const defaultIcon = parent.querySelector(".asset-icon-default");
-    if (defaultIcon) {
-      defaultIcon.style.display = "block";
+    const defaultIconDiv = parent.querySelector(".asset-icon-default");
+    if (defaultIconDiv) {
+      defaultIconDiv.style.display = "flex";
     }
   };
 
