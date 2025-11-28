@@ -1,145 +1,13 @@
-// src/components/PortfolioSearch.jsx
-
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
-import DepositForm from "./DepositForm";
-import RealEstateForm from "./RealEstateForm";
-import BusinessForm from "./BusinessForm";
-
-// Импортируем все иконки
-import defaultIcon from "../assets/img/defoultIcon.png";
-import defaultBusiness from "../assets/img/defoultBuisnes.png";
-import defaultDeposit from "../assets/img/defoultDeposit.png";
-import defaultRealEstate from "../assets/img/defoultRealEstate.png";
-import goldIcon from "../assets/img/gold.png";
-import silverIcon from "../assets/img/silver.png";
-import platinumIcon from "../assets/img/platinum.png";
-import palladiumIcon from "../assets/img/palladium.png";
-import ruBondsIcon from "../assets/img/RuBonds.png";
-
-const formatPercentage = (value) => {
-  if (value === undefined || value === null) return "—";
-  return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
-};
-
-const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-};
-
-const getAssetTypeInRussian = (type) => {
-  const types = {
-    share: "Акции",
-    bond: "Облигации",
-    currency: "Валюты",
-    crypto: "Криптовалюты",
-    metal: "Драгоценные металлы",
-    business: "Бизнес",
-  };
-  return types[type] || type;
-};
-
-// Компонент для отображения иконки актива
-const AssetIcon = ({ asset, className = "" }) => {
-  // Для облигаций ОФЗ используем специальную иконку
-  if (asset.type === "bond") {
-    // Проверяем, является ли это ОФЗ
-    const isOFZ =
-      asset.name?.includes("ОФЗ") ||
-      asset.ticker?.includes("OFZ") ||
-      asset.name?.toLowerCase().includes("федерал");
-
-    if (isOFZ) {
-      return (
-        <div className={`asset-icon-default bond-ofz-icon ${className}`}>
-          <img src={ruBondsIcon} alt="OFZ Bond" className="default-icon-img" />
-        </div>
-      );
-    }
-
-    // Для остальных облигаций - дефолтная иконка
-    return (
-      <div className={`asset-icon-default ${className}`}>
-        <img src={defaultIcon} alt="Bond" className="default-icon-img" />
-      </div>
-    );
-  }
-
-  // Для металлов используем специальные иконки
-  if (asset.type === "metal") {
-    const metalIcons = {
-      XAU: goldIcon,
-      XAG: silverIcon,
-      XPT: platinumIcon,
-      XPD: palladiumIcon,
-    };
-
-    const metalIcon = metalIcons[asset.ticker];
-    if (metalIcon) {
-      return (
-        <div className={`asset-icon-default metal-icon ${className}`}>
-          <img src={metalIcon} alt={asset.name} className="default-icon-img" />
-        </div>
-      );
-    }
-  }
-
-  // Для остальных активов проверяем наличие иконки
-  const showDefaultIcon =
-    !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
-
-  if (showDefaultIcon) {
-    return (
-      <div className={`asset-icon-default ${className}`}>
-        <img src={defaultIcon} alt="Default" className="default-icon-img" />
-      </div>
-    );
-  }
-
-  const handleImageError = (e) => {
-    // Если иконка не загружается, заменяем на дефолтную
-    e.target.style.display = "none";
-    const parent = e.target.parentElement;
-    const defaultIconDiv = parent.querySelector(".asset-icon-default");
-    if (defaultIconDiv) {
-      defaultIconDiv.style.display = "flex";
-    }
-  };
-
-  return (
-    <div style={{ position: "relative" }}>
-      <img
-        src={asset.iconUrl}
-        alt={asset.name}
-        className={`asset-icon ${className}`}
-        onError={handleImageError}
-      />
-      <div
-        className={`asset-icon-default ${className}`}
-        style={{ display: "none" }}
-      >
-        <img src={defaultIcon} alt="Default" className="default-icon-img" />
-      </div>
-    </div>
-  );
-};
+import { useAssetSearch } from "../hooks/useAssetSearch";
+import { useAssetQuantities } from "../hooks/useAssetQuantities";
+import { FormSuggestions } from "./search/FormSuggestions";
+import { SearchResults } from "./search/SearchResults";
 
 const PortfolioSearch = () => {
   const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showDepositForm, setShowDepositForm] = useState(false);
-  const [showRealEstateForm, setShowRealEstateForm] = useState(false);
-  const [showBusinessForm, setShowBusinessForm] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  const [filteredAssets, setFilteredAssets] = useState([]);
-  const [quantities, setQuantities] = useState({});
-  const [hoveredAsset, setHoveredAsset] = useState(null);
 
   const { shares, bonds, currency, crypto, metals } = useSelector((state) => ({
     shares: state.shares.items,
@@ -160,25 +28,6 @@ const PortfolioSearch = () => {
     [shares, bonds, currency, crypto, metals]
   );
 
-  const formatPrice = useCallback((asset) => {
-    if (!asset) return "не торгуется";
-    const price =
-      asset.type === "bond"
-        ? asset.pricePercent
-        : ["share", "crypto", "metal"].includes(asset.type)
-          ? asset.price
-          : asset.type === "currency"
-            ? asset.value
-            : null;
-
-    if (price === null || price === "—") return "не торгуется";
-
-    return asset.type === "bond"
-      ? `${price}%`
-      : `${price} ₽${asset.type === "metal" ? "/г" : ""}`;
-  }, []);
-
-  // Ключевые слова для форм
   const depositKeywords = useMemo(
     () => [
       "счет",
@@ -192,13 +41,6 @@ const PortfolioSearch = () => {
       "банк",
       "процент",
       "ставка",
-      "deposit",
-      "savings",
-      "bank account",
-      "investment account",
-      "fixed deposit",
-      "term deposit",
-      "savings account",
     ],
     []
   );
@@ -218,16 +60,6 @@ const PortfolioSearch = () => {
       "здание",
       "строение",
       "имущество",
-      "real estate",
-      "apartment",
-      "house",
-      "land",
-      "property",
-      "realestate",
-      "commercial",
-      "residential",
-      "building",
-      "estate",
     ],
     []
   );
@@ -245,113 +77,28 @@ const PortfolioSearch = () => {
       "малый бизнес",
       "средний бизнес",
       "крупный бизнес",
-      "франшиза",
-      "интернет бизнес",
-      "онлайн бизнес",
-      "производство",
-      "услуги",
-      "розничная торговля",
-      "оптовая торговля",
-      "кафе",
-      "ресторан",
-      "магазин",
-      "салон",
-      "студия",
-      "агенство",
-      "компания",
-      "business",
-      "company",
-      "startup",
-      "enterprise",
-      "firm",
-      "entrepreneurship",
-      "venture",
-      "corporation",
-      "LLC",
-      "inc",
     ],
     []
   );
 
-  useEffect(() => {
-    if (!debouncedSearchTerm) {
-      setFilteredAssets([]);
-      setIsLoading(false);
-      setShowDepositForm(false);
-      setShowRealEstateForm(false);
-      setShowBusinessForm(false);
-      return;
-    }
-
-    setIsLoading(true);
-    const timeout = setTimeout(() => {
-      const searchLower = debouncedSearchTerm.toLowerCase();
-
-      // Проверяем ключевые слова для форм
-      const isDepositSearch = depositKeywords.some((keyword) =>
-        searchLower.includes(keyword.toLowerCase())
-      );
-      const isRealEstateSearch = realEstateKeywords.some((keyword) =>
-        searchLower.includes(keyword.toLowerCase())
-      );
-      const isBusinessSearch = businessKeywords.some((keyword) =>
-        searchLower.includes(keyword.toLowerCase())
-      );
-
-      setShowDepositForm(isDepositSearch);
-      setShowRealEstateForm(isRealEstateSearch);
-      setShowBusinessForm(isBusinessSearch);
-
-      // Поиск обычных активов
-      const results = allAssets
-        .filter((asset) => {
-          const matches = [
-            asset.name?.toLowerCase().includes(searchLower),
-            asset.ticker?.toLowerCase().includes(searchLower),
-            asset.code?.toLowerCase().includes(searchLower),
-            asset.id?.toLowerCase().includes(searchLower),
-          ];
-          return matches.some(Boolean);
-        })
-        .slice(0, 50)
-        .map((asset) => ({
-          ...asset,
-          displayPrice: formatPrice(asset),
-          typeRussian: getAssetTypeInRussian(asset.type),
-        }));
-
-      const newQuantities = { ...quantities };
-      results.forEach((asset) => {
-        const key = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
-        if (!newQuantities[key]) newQuantities[key] = 1;
-      });
-      setQuantities(newQuantities);
-
-      setFilteredAssets(results);
-      setIsLoading(false);
-    }, 200);
-
-    return () => clearTimeout(timeout);
-  }, [
-    debouncedSearchTerm,
+  const {
+    searchTerm,
+    filteredAssets,
+    isLoading,
+    showDepositForm,
+    showRealEstateForm,
+    showBusinessForm,
+    handleSearchChange,
+    setSearchTerm,
+  } = useAssetSearch(
     allAssets,
-    formatPrice,
     depositKeywords,
     realEstateKeywords,
-    businessKeywords,
-  ]);
+    businessKeywords
+  );
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchTerm(e.target.value);
-    setIsLoading(true);
-  }, []);
-
-  const handleQuantityChange = useCallback((key, value) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [key]: Math.max(1, Number(value) || 1),
-    }));
-  }, []);
+  const { quantities, handleQuantityChange, initializeQuantity } =
+    useAssetQuantities();
 
   const handleAddAsset = useCallback(
     (asset) => {
@@ -370,16 +117,26 @@ const PortfolioSearch = () => {
     [quantities, dispatch]
   );
 
-  // Функция для закрытия только формы (без очистки поиска)
-  const handleCloseForm = useCallback((formType) => {
-    if (formType === "deposit") {
-      setShowDepositForm(false);
-    } else if (formType === "realestate") {
-      setShowRealEstateForm(false);
-    } else if (formType === "business") {
-      setShowBusinessForm(false);
-    }
-  }, []);
+  const handleCloseForm = useCallback(
+    (formType) => {
+      if (formType === "deposit") {
+        setSearchTerm("");
+      } else if (formType === "realestate") {
+        setSearchTerm("");
+      } else if (formType === "business") {
+        setSearchTerm("");
+      }
+    },
+    [setSearchTerm]
+  );
+
+  // Initialize quantities for filtered assets
+  React.useEffect(() => {
+    filteredAssets.forEach((asset) => {
+      const key = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
+      initializeQuantity(key);
+    });
+  }, [filteredAssets, initializeQuantity]);
 
   return (
     <div className="portfolioSearch card-shadow">
@@ -395,152 +152,20 @@ const PortfolioSearch = () => {
 
       {searchTerm && (
         <div className="fade-in">
-          {/* Показываем формы при поиске соответствующих ключевых слов */}
-          {showDepositForm && (
-            <div className="deposit-form-container">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1rem",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>Добавить депозит</h3>
-                <button
-                  onClick={() => handleCloseForm("deposit")}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "var(--dark-text-secondary)",
-                    fontSize: "1.25rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-              <DepositForm onClose={() => handleCloseForm("deposit")} />
-            </div>
-          )}
+          <FormSuggestions
+            showDepositForm={showDepositForm}
+            showRealEstateForm={showRealEstateForm}
+            showBusinessForm={showBusinessForm}
+            onCloseForm={handleCloseForm}
+          />
 
-          {showRealEstateForm && (
-            <div className="realestate-form-container">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1rem",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>Добавить недвижимость</h3>
-                <button
-                  onClick={() => handleCloseForm("realestate")}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "var(--dark-text-secondary)",
-                    fontSize: "1.25rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-              <RealEstateForm onClose={() => handleCloseForm("realestate")} />
-            </div>
-          )}
-
-          {showBusinessForm && (
-            <div className="business-form-container">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1rem",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>Добавить бизнес</h3>
-                <button
-                  onClick={() => handleCloseForm("business")}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "var(--dark-text-secondary)",
-                    fontSize: "1.25rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-              <BusinessForm onClose={() => handleCloseForm("business")} />
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="loading">Загрузка...</div>
-          ) : filteredAssets.length > 0 ? (
-            <div className="searchResults">
-              {filteredAssets.map((asset, index) => {
-                const assetKey = `${asset.type}-${asset.ticker || asset.code || asset.id}-${index}`;
-                const quantityKey = `${asset.type}-${asset.ticker || asset.code || asset.id}`;
-                const quantity = quantities[quantityKey] || 1;
-
-                return (
-                  <div
-                    key={assetKey}
-                    className="assetItem smooth-appear"
-                    onMouseEnter={() => setHoveredAsset(assetKey)}
-                    onMouseLeave={() => setHoveredAsset(null)}
-                  >
-                    <div className="assetInfo">
-                      {/* Добавляем иконку для всех активов */}
-                      <div className="assetHeader">
-                        <AssetIcon asset={asset} className="assetIcon" />
-                        <div className="assetName truncate">
-                          {asset.name} ({asset.ticker || asset.code || asset.id}
-                          )
-                        </div>
-                      </div>
-                      <div className="assetType">{asset.typeRussian}</div>
-                      <div className="assetPrice">{asset.displayPrice}</div>
-                      <div
-                        className={`assetChange ${asset.yearChangePercent >= 0 ? "positive" : "negative"}`}
-                      >
-                        за день {formatPercentage(asset.yearChangePercent)}
-                      </div>
-                    </div>
-
-                    {asset.displayPrice !== "не торгуется" &&
-                      hoveredAsset === assetKey && (
-                        <div className="assetControls">
-                          <input
-                            type="number"
-                            min="1"
-                            value={quantity}
-                            onChange={(e) =>
-                              handleQuantityChange(quantityKey, e.target.value)
-                            }
-                            className="quantityInput"
-                          />
-                          <button
-                            onClick={() => handleAddAsset(asset)}
-                            className="addButton"
-                          >
-                            Добавить
-                          </button>
-                        </div>
-                      )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : !showDepositForm && !showRealEstateForm && !showBusinessForm ? (
-            <p>Активы не найдены</p>
-          ) : null}
+          <SearchResults
+            filteredAssets={filteredAssets}
+            isLoading={isLoading}
+            quantities={quantities}
+            onQuantityChange={handleQuantityChange}
+            onAddAsset={handleAddAsset}
+          />
         </div>
       )}
     </div>
