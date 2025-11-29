@@ -1917,3 +1917,122 @@ code {
     border-radius: 4px;
   }
 }
+/* Стили для кнопок хедера */
+.header-button {
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--dark-border);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--dark-surface);
+  color: var(--dark-text-primary);
+  transition: var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.header-button:hover {
+  background: var(--dark-surface-hover);
+  border-color: var(--dark-text-tertiary);
+  transform: translateY(-1px);
+}
+
+.header-button:active {
+  transform: translateY(0);
+  background: var(--dark-surface-active);
+}
+
+/* Специфичные стили для кнопки сохранения */
+.header-button:first-child {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--primary-color);
+}
+
+.header-button:first-child:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Стили для кнопки копирования ссылки */
+.header-button:nth-child(2) {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--secondary-color);
+}
+
+.header-button:nth-child(2):hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Стили для кнопки нового портфеля */
+.header-button:nth-child(3) {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--warning-color);
+}
+
+.header-button:nth-child(3):hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.header-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Индикатор загруженного портфеля */
+.portfolio-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--dark-text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--dark-surface-hover);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--dark-border);
+}
+
+.portfolio-id {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--dark-surface);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Адаптивность для кнопок */
+@media (max-width: 768px) {
+  .header-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+
+  .portfolio-indicator {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-buttons {
+    width: 100%;
+  }
+
+  .header-button {
+    width: 100%;
+  }
+}

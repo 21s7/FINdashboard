@@ -14,34 +14,23 @@ const portfolioSlice = createSlice({
     addAsset: (state, action) => {
       const newAsset = action.payload;
 
-      // Для депозитов, недвижимости и бизнеса создаем уникальный ключ на основе всех данных
-      // чтобы они не объединялись
       let assetKey;
 
       if (newAsset.type === "deposit") {
-        // Для депозитов используем комбинацию типа, ставки и срока
         assetKey = `deposit-${newAsset.rate}-${newAsset.termMonths}-${Date.now()}`;
-        // Добавляем иконку для депозитов
         newAsset.iconUrl = defaultDeposit;
       } else if (newAsset.type === "realestate") {
-        // Для недвижимости используем комбинацию типа, названия и категории
         assetKey = `realestate-${newAsset.name}-${newAsset.category}-${Date.now()}`;
-        // Добавляем иконку для недвижимости
         newAsset.iconUrl = defaultRealEstate;
       } else if (newAsset.type === "business") {
-        // Для бизнеса используем комбинацию типа, названия и типа бизнеса
         assetKey = `business-${newAsset.name}-${newAsset.businessType}-${Date.now()}`;
-        // Добавляем иконку для бизнеса
         newAsset.iconUrl = defaultBusiness;
       } else {
-        // Для остальных активов используем старую логику
         assetKey = `${newAsset.type}-${newAsset.ticker || newAsset.code || newAsset.id}`;
       }
 
-      // Добавляем timestamp для уникальности
       const uniqueId = `${assetKey}-${Date.now()}`;
 
-      // Для депозитов, недвижимости и бизнеса всегда добавляем как новый актив
       if (
         newAsset.type === "deposit" ||
         newAsset.type === "realestate" ||
@@ -54,24 +43,20 @@ const portfolioSlice = createSlice({
           yearChangePercent: newAsset.yearChangePercent || 0,
         });
       } else {
-        // Для остальных активов сохраняем старую логику объединения
         const existingIndex = state.assets.findIndex(
           (a) => `${a.type}-${a.ticker || a.code || a.id}` === assetKey
         );
 
         if (existingIndex >= 0) {
-          // Обновляем существующий актив, сохраняем iconUrl если есть
           state.assets[existingIndex] = {
             ...state.assets[existingIndex],
             ...newAsset,
             quantity:
               state.assets[existingIndex].quantity + (newAsset.quantity || 1),
-            portfolioId: state.assets[existingIndex].portfolioId, // Сохраняем старый ID
-            // Сохраняем iconUrl если он пришел в новом ассете
+            portfolioId: state.assets[existingIndex].portfolioId,
             ...(newAsset.iconUrl && { iconUrl: newAsset.iconUrl }),
           };
         } else {
-          // Добавляем новый актив с iconUrl
           state.assets.push({
             ...newAsset,
             portfolioId: uniqueId,
@@ -97,9 +82,24 @@ const portfolioSlice = createSlice({
         asset.yearChangePercent = yearChangePercent;
       }
     },
+
+    // Загрузка портфеля (очищает текущий и загружает новый)
+    loadPortfolio: (state, action) => {
+      state.assets = action.payload;
+    },
+
+    // Очистка портфеля
+    clearPortfolio: (state) => {
+      state.assets = [];
+    },
   },
 });
 
-export const { addAsset, removeAsset, updateAssetStats } =
-  portfolioSlice.actions;
+export const {
+  addAsset,
+  removeAsset,
+  updateAssetStats,
+  loadPortfolio,
+  clearPortfolio,
+} = portfolioSlice.actions;
 export default portfolioSlice.reducer;
