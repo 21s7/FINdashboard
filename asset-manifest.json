@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0a8ab8aa.css",
+    "main.js": "/static/js/main.10485900.js",
+    "static/media/logo.png": "/static/media/logo.b7f7ae728e1f7e14e6fe.png",
+    "static/media/defoultBuisnes.png": "/static/media/defoultBuisnes.32b351f93e1db5dc1ff1.png",
+    "static/media/defoultIcon.png": "/static/media/defoultIcon.b83b37414e9caee4cc70.png",
+    "static/media/defoultDeposit.png": "/static/media/defoultDeposit.6ab1ad42dd70c3b8202a.png",
+    "static/media/silver.png": "/static/media/silver.5db33048fe7de29ca8ec.png",
+    "static/media/gold.png": "/static/media/gold.7f103219e4f6c333d3eb.png",
+    "static/media/platinum.png": "/static/media/platinum.bf9ea2d6ef2d3a0ae500.png",
+    "static/media/palladium.png": "/static/media/palladium.17e798f04bd0439a32dc.png",
+    "static/media/defoultRealEstate.png": "/static/media/defoultRealEstate.a42a315d50aa11fe5dab.png",
+    "static/media/RuBonds.png": "/static/media/RuBonds.a43f90f85114b7e17035.png",
+    "index.html": "/index.html",
+    "main.0a8ab8aa.css.map": "/static/css/main.0a8ab8aa.css.map",
+    "main.10485900.js.map": "/static/js/main.10485900.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0a8ab8aa.css",
+    "static/js/main.10485900.js"
+  ]
+}
