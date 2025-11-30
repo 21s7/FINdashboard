@@ -1,3 +1,5 @@
+// src/components/Portfolio.jsx
+
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";

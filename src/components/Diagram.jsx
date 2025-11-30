@@ -1,3 +1,5 @@
+// src/components/Diagram.jsx
+
 import React from "react";
 import { useChartData } from "../hooks/useChartData";
 import { PieChartComponent } from "./charts/PieChartComponent";

@@ -1,3 +1,5 @@
+//src/hooks/usePortfolioSharing.js
+
 import { useState, useEffect, useCallback } from "react";
 
 // Функции для кодирования/декодирования данных портфеля

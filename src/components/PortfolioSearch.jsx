@@ -1,3 +1,5 @@
+// src/components/PortfolioSearch.jsx
+
 import React, { useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addAsset } from "../slices/portfolioSlice";
