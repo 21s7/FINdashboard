@@ -79,7 +79,7 @@ export const AssetCard = ({ asset }) => {
             <span className="separator">•</span>
             <span className="unitPrice">
               {asset.type === "bond"
-                ? `${asset.pricePercent.toFixed(3)}%`
+                ? `${asset.pricePercent.toFixed(2)}%`
                 : formatCurrency(asset.price || asset.value)}
             </span>
           </div>
@@ -102,7 +102,8 @@ export const AssetCard = ({ asset }) => {
         <div
           className={`change ${asset.yearChangePercent >= 0 ? "positive" : "negative"}`}
         >
-          доход {formatPercentage(asset.yearChangePercent)}
+          {asset.type === "bond" ? "доходность" : "доход"}{" "}
+          {formatPercentage(asset.yearChangePercent)}
         </div>
       </div>
 

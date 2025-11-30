@@ -36,7 +36,7 @@ const formatPrice = (asset) => {
   if (price === null || price === "—") return "не торгуется";
 
   return asset.type === "bond"
-    ? `${price}%`
+    ? `${price.toFixed(2)}%`
     : `${price} ₽${asset.type === "metal" ? "/г" : ""}`;
 };
 
@@ -69,7 +69,8 @@ export const AssetSearchItem = ({
         <div
           className={`assetChange ${asset.yearChangePercent >= 0 ? "positive" : "negative"}`}
         >
-          за день {formatPercentage(asset.yearChangePercent)}
+          {asset.type === "bond" ? "доходность" : "за день"}{" "}
+          {formatPercentage(asset.yearChangePercent)}
         </div>
       </div>
 
