@@ -119,6 +119,12 @@ export const usePortfolioSharing = () => {
     }
 
     setIsLoading(false);
+
+    // Если есть активы, устанавливаем ID
+    if (assets.length > 0 && id) {
+      setPortfolioId(id);
+    }
+
     return { id, assets };
   }, []);
 

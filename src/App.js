@@ -149,28 +149,27 @@ function App() {
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              {savedPortfolioId && (
-                <div className="portfolio-indicator">
-                  📁 Портфель:{" "}
-                  <span className="portfolio-id">{savedPortfolioId}</span>
-                </div>
-              )}
               <div className="header-buttons">
-                <button className="header-button" onClick={handleSavePortfolio}>
-                  💾 Сохранить
-                </button>
-                {savedPortfolioId && (
-                  <button className="header-button" onClick={handleCopyLink}>
-                    🔗 Копировать ссылку
-                  </button>
-                )}
-                {(savedPortfolioId || portfolioAssets.length > 0) && (
+                {!savedPortfolioId && (
                   <button
                     className="header-button"
-                    onClick={handleNewPortfolio}
+                    onClick={handleSavePortfolio}
                   >
-                    📄 Новый портфель
+                    💾 Сохранить
                   </button>
+                )}
+                {savedPortfolioId && (
+                  <>
+                    <button className="header-button" onClick={handleCopyLink}>
+                      🔗 Копировать ссылку
+                    </button>
+                    <button
+                      className="header-button"
+                      onClick={handleNewPortfolio}
+                    >
+                      📄 Новый портфель
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -192,7 +191,7 @@ function App() {
             </div>
           </div>
           <div className="третьяСекция">
-            <Portfolio />
+            <Portfolio savedPortfolioId={savedPortfolioId} />
           </div>
         </div>
       </div>

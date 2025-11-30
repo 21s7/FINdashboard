@@ -6,7 +6,7 @@ import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
 import { usePortfolioGroups } from "../hooks/usePortfolioGroups";
 import { AssetGroup } from "./portfolio/AssetGroup";
 
-const Portfolio = () => {
+const Portfolio = ({ savedPortfolioId }) => {
   const dispatch = useDispatch();
   const portfolioAssets = useSelector((state) => state.portfolio.assets);
   const sharesData = useSelector((state) => state.shares.items);
@@ -38,7 +38,11 @@ const Portfolio = () => {
   return (
     <div className="portfolioView">
       <div className="header">
-        <h1 className="title">Мой Портфель</h1>
+        <h1 className="title">
+          {savedPortfolioId
+            ? `📁 Портфель:${savedPortfolioId}`
+            : "Мой Портфель"}
+        </h1>
       </div>
 
       <div className="portfolioGrid">
