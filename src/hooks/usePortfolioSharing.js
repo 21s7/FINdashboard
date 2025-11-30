@@ -15,6 +15,11 @@ const encodePortfolioData = (assets) => {
       ticker: asset.ticker,
       code: asset.code,
       id: asset.id,
+      // Сохраняем информацию об иконках
+      icon: asset.iconUrl,
+      isOFZ: asset.isOFZ,
+      hasCustomLogo: asset.hasCustomLogo,
+      countryCode: asset.countryCode,
       // Для специальных типов
       rt: asset.rate,
       tm: asset.termMonths,
@@ -50,28 +55,37 @@ const decodePortfolioData = (encodedString) => {
     const simplifiedAssets = JSON.parse(jsonString);
 
     // Восстанавливаем полные объекты активов
-    return simplifiedAssets.map((asset) => ({
-      type: asset.t,
-      name: asset.n,
-      quantity: asset.q || 1,
-      price: asset.p,
-      pricePercent: asset.tp,
-      yearChangePercent: asset.ycp || 0,
-      ticker: asset.ticker,
-      code: asset.code,
-      id: asset.id,
-      portfolioId: `${asset.t}-${asset.ticker || asset.code || asset.id}-${Date.now()}-${Math.random()}`,
-      // Восстанавливаем специальные поля
-      rate: asset.rt,
-      termMonths: asset.tm,
-      category: asset.cat,
-      address: asset.addr,
-      yieldPercent: asset.yp,
-      businessType: asset.bt,
-      monthlyProfit: asset.mp,
-      profitMargin: asset.pm,
-      value: asset.p, // Для депозитов, недвижимости, бизнеса
-    }));
+    return simplifiedAssets.map((asset) => {
+      const portfolioId = `${asset.t}-${asset.ticker || asset.code || asset.id}-${Date.now()}-${Math.random()}`;
+
+      return {
+        type: asset.t,
+        name: asset.n,
+        quantity: asset.q || 1,
+        price: asset.p,
+        pricePercent: asset.tp,
+        yearChangePercent: asset.ycp || 0,
+        ticker: asset.ticker,
+        code: asset.code,
+        id: asset.id,
+        portfolioId: portfolioId,
+        // Восстанавливаем информацию об иконках
+        iconUrl: asset.icon,
+        isOFZ: asset.isOFZ,
+        hasCustomLogo: asset.hasCustomLogo,
+        countryCode: asset.countryCode,
+        // Восстанавливаем специальные поля
+        rate: asset.rt,
+        termMonths: asset.tm,
+        category: asset.cat,
+        address: asset.addr,
+        yieldPercent: asset.yp,
+        businessType: asset.bt,
+        monthlyProfit: asset.mp,
+        profitMargin: asset.pm,
+        value: asset.p, // Для депозитов, недвижимости, бизнеса
+      };
+    });
   } catch (error) {
     console.error("Error decoding portfolio:", error);
     return [];
