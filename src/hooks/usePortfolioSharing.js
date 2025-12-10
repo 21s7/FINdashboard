@@ -174,6 +174,40 @@ export const usePortfolioSharing = () => {
     };
   }, []);
 
+  // Обновление существующего портфеля (создает новую ссылку с тем же ID)
+  const updatePortfolio = useCallback(
+    async (assets, currentPortfolioId = null) => {
+      const encodedData = encodePortfolioData(assets);
+      if (!encodedData) {
+        return {
+          success: false,
+          portfolioId: null,
+          shareUrl: null,
+          error: "Ошибка при кодировании данных портфеля",
+        };
+      }
+
+      // Используем существующий ID или создаем новый
+      const updatedPortfolioId = currentPortfolioId || generatePortfolioId();
+      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${updatedPortfolioId}&data=${encodedData}`;
+
+      // Обновляем URL без перезагрузки страницы
+      if (window.history.replaceState) {
+        window.history.replaceState({}, "", shareUrl);
+      }
+
+      setPortfolioId(updatedPortfolioId);
+
+      return {
+        success: true,
+        portfolioId: updatedPortfolioId,
+        shareUrl: shareUrl,
+        isUpdate: !!currentPortfolioId, // Флаг, что это обновление
+      };
+    },
+    []
+  );
+
   // Создание новой ссылки для шаринга
   const createShareableLink = useCallback(
     (assets) => {
@@ -201,6 +235,7 @@ export const usePortfolioSharing = () => {
     isLoading,
     getPortfolioFromUrl,
     savePortfolio,
+    updatePortfolio, // Новая функция для обновления
     createShareableLink,
     clearPortfolioId,
   };

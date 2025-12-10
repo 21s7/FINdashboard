@@ -1,6 +1,6 @@
 // src/App.js
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Bonds from "./services/Bonds";
 import Shares from "./services/Shares";
 import Currency from "./services/Сurrency";
@@ -16,7 +16,12 @@ import LoadingScreen from "./components/LoadingScreen";
 
 import { usePortfolioSharing } from "./hooks/usePortfolioSharing";
 import { useDispatch, useSelector } from "react-redux";
-import { loadPortfolio, clearPortfolio } from "./slices/portfolioSlice";
+import {
+  loadPortfolio,
+  clearPortfolio,
+  addAsset,
+  removeAsset,
+} from "./slices/portfolioSlice";
 
 // Импорты стилей
 import "./assets/styles/App.css";
@@ -27,6 +32,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [savedPortfolioId, setSavedPortfolioId] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalAssetsHash, setOriginalAssetsHash] = useState("");
 
   // Состояния для модальных окон
   const [modalConfig, setModalConfig] = useState({
@@ -41,15 +48,22 @@ function App() {
 
   const dispatch = useDispatch();
   const portfolioAssets = useSelector((state) => state.portfolio.assets);
+  const portfolioAssetsRef = useRef(portfolioAssets);
 
   const {
     portfolioId,
     isLoading: sharingLoading,
     getPortfolioFromUrl,
     savePortfolio,
+    updatePortfolio,
     createShareableLink,
     clearPortfolioId,
   } = usePortfolioSharing();
+
+  // Обновляем ref при изменении активов
+  useEffect(() => {
+    portfolioAssetsRef.current = portfolioAssets;
+  }, [portfolioAssets]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -58,6 +72,23 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Функция для создания хеша активов
+  const createAssetsHash = (assets) => {
+    if (!assets || assets.length === 0) return "";
+
+    const simplified = assets.map((asset) => ({
+      type: asset.type,
+      name: asset.name,
+      quantity: asset.quantity,
+      price: asset.price || asset.value,
+      ticker: asset.ticker,
+      id: asset.id,
+      portfolioId: asset.portfolioId,
+    }));
+
+    return JSON.stringify(simplified);
+  };
+
   // Загрузка портфеля из URL при монтировании
   useEffect(() => {
     const { id, assets } = getPortfolioFromUrl();
@@ -65,8 +96,29 @@ function App() {
     if (assets && assets.length > 0) {
       dispatch(loadPortfolio(assets));
       setSavedPortfolioId(id);
+      setHasUnsavedChanges(false);
+      // Сохраняем хеш оригинального портфеля
+      setOriginalAssetsHash(createAssetsHash(assets));
     }
   }, [getPortfolioFromUrl, dispatch]);
+
+  // Отслеживаем изменения в портфеле
+  useEffect(() => {
+    if (savedPortfolioId && portfolioAssets.length > 0) {
+      const currentHash = createAssetsHash(portfolioAssets);
+      // Сравниваем с оригинальным хешом
+      if (currentHash !== originalAssetsHash) {
+        setHasUnsavedChanges(true);
+      } else {
+        setHasUnsavedChanges(false);
+      }
+    } else if (!savedPortfolioId && portfolioAssets.length > 0) {
+      // Для нового портфеля изменения есть если есть активы
+      setHasUnsavedChanges(true);
+    } else {
+      setHasUnsavedChanges(false);
+    }
+  }, [portfolioAssets, savedPortfolioId, originalAssetsHash]);
 
   // Функция переключения темы
   const toggleTheme = () => {
@@ -94,7 +146,7 @@ function App() {
     });
   };
 
-  // Функция сохранения портфеля
+  // Функция сохранения нового портфеля
   const handleSavePortfolio = async () => {
     if (portfolioAssets.length === 0) {
       showModal({
@@ -112,12 +164,14 @@ function App() {
 
     if (result.success) {
       setSavedPortfolioId(result.portfolioId);
+      setHasUnsavedChanges(false);
+      // Обновляем хеш оригинального портфеля
+      setOriginalAssetsHash(createAssetsHash(portfolioAssets));
 
       // Копируем ссылку в буфер обмена
       try {
         await navigator.clipboard.writeText(result.shareUrl);
 
-        // Показываем сообщение об успешном сохранении
         showModal({
           type: "success",
           title: "Портфель сохранен!",
@@ -127,7 +181,6 @@ function App() {
           autoCloseDelay: 3000,
         });
       } catch (copyError) {
-        // Если не удалось скопировать, показываем ссылку
         showModal({
           type: "info",
           title: "Портфель сохранен!",
@@ -147,37 +200,129 @@ function App() {
     }
   };
 
-  // Функция для открытия диалога создания нового портфеля
-  const openNewPortfolioDialog = () => {
-    showModal({
-      type: "confirm",
-      title: "Создать новый портфель?",
-      message:
-        "Текущие данные будут очищены. Вы уверены, что хотите создать новый портфель?",
-      icon: "📄",
-      onConfirm: () => {
-        dispatch(clearPortfolio());
-        clearPortfolioId();
-        setSavedPortfolioId(null);
+  // Функция сохранения изменений в существующем портфеле
+  const handleSaveChanges = async () => {
+    if (portfolioAssets.length === 0) {
+      showModal({
+        type: "warning",
+        title: "Портфель пуст",
+        message: "Нет активов для сохранения.",
+        showCancel: false,
+        icon: "📂",
+      });
+      return;
+    }
 
-        if (window.history.replaceState) {
-          const newUrl = window.location.origin + window.location.pathname;
-          window.history.replaceState({}, "", newUrl);
-        }
+    if (!savedPortfolioId) {
+      handleSavePortfolio();
+      return;
+    }
 
-        window.dispatchEvent(new Event("popstate"));
+    // Обновляем существующий портфель
+    const result = await updatePortfolio(portfolioAssets, savedPortfolioId);
 
-        // Показываем сообщение об успешном создании
+    if (result.success) {
+      setHasUnsavedChanges(false);
+      // Обновляем хеш оригинального портфеля
+      setOriginalAssetsHash(createAssetsHash(portfolioAssets));
+
+      // Копируем обновленную ссылку в буфер обмена
+      try {
+        await navigator.clipboard.writeText(result.shareUrl);
+
         showModal({
           type: "success",
-          title: "Новый портфель создан",
-          message: "Теперь вы можете добавить новые активы.",
+          title: "Изменения сохранены!",
+          message: "Новая ссылка на портфель скопирована в буфер обмена.",
           showCancel: false,
-          icon: "✨",
-          autoCloseDelay: 2000,
+          icon: "✅",
+          autoCloseDelay: 3000,
         });
-      },
-    });
+      } catch (copyError) {
+        showModal({
+          type: "info",
+          title: "Изменения сохранены!",
+          message: `Новая ссылка на портфель: ${result.shareUrl}`,
+          showCancel: false,
+          icon: "📋",
+        });
+      }
+    } else {
+      showModal({
+        type: "error",
+        title: "Ошибка сохранения",
+        message: result.error || "Не удалось сохранить изменения.",
+        showCancel: false,
+        icon: "❌",
+      });
+    }
+  };
+
+  // Функция для открытия диалога создания нового портфеля
+  const openNewPortfolioDialog = () => {
+    if (hasUnsavedChanges && savedPortfolioId) {
+      showModal({
+        type: "confirm",
+        title: "Несохраненные изменения",
+        message:
+          "У вас есть несохраненные изменения. Создать новый портфель без сохранения?",
+        icon: "⚠️",
+        onConfirm: () => {
+          dispatch(clearPortfolio());
+          clearPortfolioId();
+          setSavedPortfolioId(null);
+          setHasUnsavedChanges(false);
+          setOriginalAssetsHash("");
+
+          if (window.history.replaceState) {
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, "", newUrl);
+          }
+
+          window.dispatchEvent(new Event("popstate"));
+
+          showModal({
+            type: "success",
+            title: "Новый портфель создан",
+            message: "Теперь вы можете добавить новые активы.",
+            showCancel: false,
+            icon: "✨",
+            autoCloseDelay: 2000,
+          });
+        },
+      });
+    } else {
+      showModal({
+        type: "confirm",
+        title: "Создать новый портфель?",
+        message:
+          "Текущие данные будут очищены. Вы уверены, что хотите создать новый портфель?",
+        icon: "📄",
+        onConfirm: () => {
+          dispatch(clearPortfolio());
+          clearPortfolioId();
+          setSavedPortfolioId(null);
+          setHasUnsavedChanges(false);
+          setOriginalAssetsHash("");
+
+          if (window.history.replaceState) {
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, "", newUrl);
+          }
+
+          window.dispatchEvent(new Event("popstate"));
+
+          showModal({
+            type: "success",
+            title: "Новый портфель создан",
+            message: "Теперь вы можете добавить новые активы.",
+            showCancel: false,
+            icon: "✨",
+            autoCloseDelay: 2000,
+          });
+        },
+      });
+    }
   };
 
   // Функция копирования ссылки
@@ -310,7 +455,11 @@ function App() {
             </div>
           </div>
           <div className="третьяСекция">
-            <Portfolio savedPortfolioId={savedPortfolioId} />
+            <Portfolio
+              savedPortfolioId={savedPortfolioId}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onSaveChanges={handleSaveChanges}
+            />
           </div>
         </div>
       </div>
