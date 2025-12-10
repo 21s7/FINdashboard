@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.0a8ab8aa.css",
-    "main.js": "/static/js/main.5cf02a06.js",
+    "main.css": "/static/css/main.ab718559.css",
+    "main.js": "/static/js/main.4f239266.js",
     "static/media/logo.png": "/static/media/logo.b7f7ae728e1f7e14e6fe.png",
     "static/media/defoultBuisnes.png": "/static/media/defoultBuisnes.32b351f93e1db5dc1ff1.png",
     "static/media/defoultIcon.png": "/static/media/defoultIcon.b83b37414e9caee4cc70.png",
@@ -13,11 +13,11 @@
     "static/media/defoultRealEstate.png": "/static/media/defoultRealEstate.a42a315d50aa11fe5dab.png",
     "static/media/RuBonds.png": "/static/media/RuBonds.a43f90f85114b7e17035.png",
     "index.html": "/index.html",
-    "main.0a8ab8aa.css.map": "/static/css/main.0a8ab8aa.css.map",
-    "main.5cf02a06.js.map": "/static/js/main.5cf02a06.js.map"
+    "main.ab718559.css.map": "/static/css/main.ab718559.css.map",
+    "main.4f239266.js.map": "/static/js/main.4f239266.js.map"
   },
   "entrypoints": [
-    "static/css/main.0a8ab8aa.css",
-    "static/js/main.5cf02a06.js"
+    "static/css/main.ab718559.css",
+    "static/js/main.4f239266.js"
   ]
 }
