@@ -142,34 +142,36 @@ export const usePortfolioSharing = () => {
     return { id, assets };
   }, []);
 
-  // Сохранение портфеля в URL
-  const savePortfolio = useCallback((assets) => {
+  // Сохранение портфеля в URL (возвращает объект с результатом)
+  const savePortfolio = useCallback(async (assets) => {
     const encodedData = encodePortfolioData(assets);
     if (!encodedData) {
-      alert("Ошибка при сохранении портфеля");
-      return null;
+      return {
+        success: false,
+        portfolioId: null,
+        shareUrl: null,
+        error: "Ошибка при кодировании данных портфеля",
+      };
     }
 
     const newPortfolioId = generatePortfolioId();
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${newPortfolioId}&data=${encodedData}`;
 
-    // Создаем URL с данными прямо в параметре
-    const newUrl = `${window.location.origin}${window.location.pathname}?id=${newPortfolioId}&data=${encodedData}`;
+    // Обновляем URL без перезагрузки страницы
+    if (window.history.replaceState) {
+      window.history.replaceState({}, "", shareUrl);
+    } else {
+      window.location.href = shareUrl;
+    }
 
-    // Обновляем URL
-    window.history.replaceState({}, "", newUrl);
     setPortfolioId(newPortfolioId);
 
-    // Копируем в буфер обмена
-    navigator.clipboard
-      .writeText(newUrl)
-      .then(() => {
-        alert("Портфель сохранен! Ссылка скопирована в буфер обмена.");
-      })
-      .catch(() => {
-        alert(`Портфель сохранен! Ссылка: ${newUrl}`);
-      });
-
-    return newPortfolioId;
+    // Возвращаем результат без показа алерта
+    return {
+      success: true,
+      portfolioId: newPortfolioId,
+      shareUrl: shareUrl,
+    };
   }, []);
 
   // Создание новой ссылки для шаринга
@@ -184,10 +186,14 @@ export const usePortfolioSharing = () => {
     [portfolioId]
   );
 
-  // Очистка ID портфеля (возврат к новому портфелю)
+  // Очистка ID портфеля (возврат к новому портфеля)
   const clearPortfolioId = useCallback(() => {
     setPortfolioId(null);
-    window.history.replaceState({}, "", window.location.pathname);
+    // Удаляем параметры из URL без перезагрузки
+    if (window.history.replaceState) {
+      const newUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    }
   }, []);
 
   return {
