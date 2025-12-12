@@ -2,7 +2,46 @@
 import { useState, useEffect, useCallback } from "react";
 import LZString from "lz-string";
 
-// Более агрессивное сжатие с меньшими потерями
+// Функция для получения иконки на основе типа и других характеристик
+const getAssetIconKey = (asset) => {
+  switch (asset.type) {
+    case "bond":
+      // Для облигаций ОФЗ
+      if (
+        asset.name?.includes("ОФЗ") ||
+        asset.ticker?.includes("OFZ") ||
+        asset.name?.toLowerCase().includes("федерал")
+      ) {
+        return "bond-ofz";
+      }
+      return "bond-default";
+
+    case "metal":
+      // Для металлов - по тикеру
+      const metalTickers = ["XAU", "XAG", "XPT", "XPD"];
+      return metalTickers.includes(asset.ticker)
+        ? `metal-${asset.ticker}`
+        : "metal-default";
+
+    case "deposit":
+      return "deposit";
+
+    case "realestate":
+      return "realestate";
+
+    case "business":
+      return "business";
+
+    default:
+      // Для акций, валют, крипты - проверяем наличие иконки
+      if (asset.iconUrl && asset.iconUrl !== "—" && asset.iconUrl !== "") {
+        return "has-icon"; // Флаг, что у актива есть иконка
+      }
+      return "default";
+  }
+};
+
+// Более агрессивное сжатие с сохранением иконок
 const encodePortfolioData = (assets) => {
   try {
     if (!assets || assets.length === 0) return "";
@@ -15,7 +54,8 @@ const encodePortfolioData = (assets) => {
       // 0: type (один символ)
       // 1: name (укороченное)
       // 2: quantity
-      // 3-...: дополнительные поля в зависимости от типа
+      // 3: icon key (один символ)
+      // 4-...: дополнительные поля
 
       // Кодируем тип одним символом
       const typeMap = {
@@ -30,39 +70,77 @@ const encodePortfolioData = (assets) => {
       };
 
       encoded.push(typeMap[asset.type] || "o"); // 0: тип
-      encoded.push(asset.name.substring(0, 20)); // 1: имя (20 символов макс)
+      encoded.push(asset.name.substring(0, 30)); // 1: имя (30 символов макс)
       encoded.push(asset.quantity || 1); // 2: количество
+
+      // Кодируем ключ иконки одним символом
+      const iconKey = getAssetIconKey(asset);
+      const iconMap = {
+        default: "0",
+        "has-icon": "1",
+        "bond-default": "2",
+        "bond-ofz": "3",
+        "metal-XAU": "4",
+        "metal-XAG": "5",
+        "metal-XPT": "6",
+        "metal-XPD": "7",
+        "metal-default": "8",
+        deposit: "9",
+        realestate: "a",
+        business: "b",
+      };
+      encoded.push(iconMap[iconKey] || "0"); // 3: ключ иконки
+
+      // Сохраняем иконку URL только если она есть и не стандартная
+      if (
+        asset.iconUrl &&
+        asset.iconUrl !== "—" &&
+        asset.iconUrl !== "" &&
+        !["deposit", "realestate", "business"].includes(asset.type)
+      ) {
+        // Сжимаем URL (оставляем только домен и путь, убираем http:// и т.д.)
+        let shortUrl = asset.iconUrl
+          .replace(/^https?:\/\//, "")
+          .replace(/^www\./, "")
+          .split("/")
+          .slice(0, 3) // Берем только первые 3 части пути
+          .join("/");
+
+        encoded.push(shortUrl); // 4: короткий URL иконки
+      } else {
+        encoded.push(""); // 4: пустая строка для иконки
+      }
 
       // Кодируем дополнительные поля в зависимости от типа
       switch (asset.type) {
         case "share":
         case "crypto":
         case "metal":
-          encoded.push(Math.round(asset.price * 100)); // 3: цена в копейках
-          encoded.push(asset.ticker || ""); // 4: тикер
-          encoded.push(Math.round(asset.yearChangePercent * 10)); // 5: доходность *10
+          encoded.push(Math.round((asset.price || 0) * 100) || 0); // 5: цена в копейках
+          encoded.push(asset.ticker || ""); // 6: тикер
+          encoded.push(Math.round((asset.yearChangePercent || 0) * 10)); // 7: доходность *10
           break;
 
         case "bond":
-          encoded.push(Math.round(asset.pricePercent * 10)); // 3: процент *10
-          encoded.push(asset.ticker || ""); // 4: тикер
-          encoded.push(Math.round(asset.yearChangePercent * 10)); // 5: доходность *10
+          encoded.push(Math.round((asset.pricePercent || 1000) * 10)); // 5: процент *10
+          encoded.push(asset.ticker || ""); // 6: тикер
+          encoded.push(Math.round((asset.yearChangePercent || 0) * 10)); // 7: доходность *10
           break;
 
         case "currency":
-          encoded.push(Math.round(asset.price * 100)); // 3: цена в копейках
-          encoded.push(asset.code || ""); // 4: код
-          encoded.push(Math.round(asset.yearChangePercent * 10)); // 5: доходность *10
+          encoded.push(Math.round((asset.price || 0) * 100) || 0); // 5: цена в копейках
+          encoded.push(asset.code || ""); // 6: код
+          encoded.push(Math.round((asset.yearChangePercent || 0) * 10)); // 7: доходность *10
           break;
 
         case "deposit":
-          encoded.push(Math.round(asset.value)); // 3: сумма
-          encoded.push(Math.round(asset.rate * 10)); // 4: ставка *10
-          encoded.push(asset.termMonths || 12); // 5: срок месяцев
+          encoded.push(Math.round(asset.value || 0)); // 5: сумма
+          encoded.push(Math.round((asset.rate || 0) * 10)); // 6: ставка *10
+          encoded.push(asset.termMonths || 12); // 7: срок месяцев
           break;
 
         case "realestate":
-          encoded.push(Math.round(asset.value)); // 3: стоимость
+          encoded.push(Math.round(asset.value || 0)); // 5: стоимость
           // Кодируем категорию одним символом
           const catMap = {
             "Жилая недвижимость": "h",
@@ -70,12 +148,13 @@ const encodePortfolioData = (assets) => {
             "Земельные участки": "l",
             "Специального назначения": "s",
           };
-          encoded.push(catMap[asset.category] || "h"); // 4: категория
-          encoded.push(Math.round((asset.yieldPercent || 0) * 10)); // 5: доходность *10
+          encoded.push(catMap[asset.category] || "h"); // 6: категория
+          encoded.push(Math.round((asset.yieldPercent || 0) * 10)); // 7: доходность *10
+          encoded.push(asset.address || ""); // 8: адрес (первые 50 символов)
           break;
 
         case "business":
-          encoded.push(Math.round(asset.value)); // 3: стоимость
+          encoded.push(Math.round(asset.value || 0)); // 5: стоимость
           // Кодируем тип бизнеса одним символом
           const busMap = {
             "Малый бизнес": "s",
@@ -89,12 +168,13 @@ const encodePortfolioData = (assets) => {
             Торговля: "g",
             Другое: "o",
           };
-          encoded.push(busMap[asset.businessType] || "s"); // 4: тип бизнеса
-          encoded.push(Math.round(asset.monthlyProfit || 0)); // 5: месячная прибыль
+          encoded.push(busMap[asset.businessType] || "s"); // 6: тип бизнеса
+          encoded.push(Math.round(asset.monthlyProfit || 0)); // 7: месячная прибыль
+          encoded.push(Math.round((asset.profitMargin || 0) * 10)); // 8: маржинальность *10
           break;
 
         default:
-          encoded.push(Math.round(asset.value || 0)); // 3: значение
+          encoded.push(Math.round(asset.value || 0)); // 5: значение
       }
 
       return encoded;
@@ -104,7 +184,6 @@ const encodePortfolioData = (assets) => {
     const jsonString = JSON.stringify(encodedAssets);
 
     // 3. Двойное сжатие для максимального уменьшения
-    // Сначала LZ-String, потом base64 для URL
     const compressed = LZString.compressToEncodedURIComponent(jsonString);
 
     // 4. Дополнительная оптимизация: убираем = в конце
@@ -131,9 +210,9 @@ const decodePortfolioData = (encodedString) => {
 
     const encodedAssets = JSON.parse(jsonString);
 
-    // 3. Восстанавливаем объекты
+    // 3. Восстанавливаем объекты с иконками
     return encodedAssets.map((encoded, index) => {
-      const portfolioId = `p-${index}-${Date.now().toString(36)}`;
+      const portfolioId = `p-${index}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
 
       // Базовый объект
       const base = {
@@ -158,6 +237,38 @@ const decodePortfolioData = (encodedString) => {
       const type = typeMap[encoded[0]] || "other";
       base.type = type;
 
+      // Восстанавливаем ключ иконки
+      const iconKeyChar = encoded[3] || "0";
+      const iconReverseMap = {
+        0: { key: "default", url: null },
+        1: { key: "has-icon", url: encoded[4] || null },
+        2: { key: "bond-default", url: null },
+        3: { key: "bond-ofz", url: null },
+        4: { key: "metal-XAU", url: null },
+        5: { key: "metal-XAG", url: null },
+        6: { key: "metal-XPT", url: null },
+        7: { key: "metal-XPD", url: null },
+        8: { key: "metal-default", url: null },
+        9: { key: "deposit", url: null },
+        a: { key: "realestate", url: null },
+        b: { key: "business", url: null },
+      };
+
+      const iconInfo = iconReverseMap[iconKeyChar] || iconReverseMap["0"];
+
+      // Если есть URL иконки, восстанавливаем его
+      let iconUrl = null;
+      if (iconInfo.key === "has-icon" && iconInfo.url) {
+        // Восстанавливаем URL иконки (упрощенная версия)
+        iconUrl = `https://${iconInfo.url}`;
+      }
+
+      // Добавляем информацию об иконке
+      base.iconInfo = iconInfo.key;
+      if (iconUrl) {
+        base.iconUrl = iconUrl;
+      }
+
       // Восстанавливаем в зависимости от типа
       switch (type) {
         case "share":
@@ -165,34 +276,37 @@ const decodePortfolioData = (encodedString) => {
         case "metal":
           return {
             ...base,
-            price: (encoded[3] || 0) / 100,
-            ticker: encoded[4] || "",
-            yearChangePercent: (encoded[5] || 0) / 10,
+            price: (encoded[5] || 0) / 100,
+            ticker: encoded[6] || "",
+            yearChangePercent: (encoded[7] || 0) / 10,
+            hasCustomLogo: iconInfo.key === "has-icon",
           };
 
         case "bond":
+          const isOFZ = iconInfo.key === "bond-ofz";
           return {
             ...base,
-            pricePercent: (encoded[3] || 1000) / 10,
-            ticker: encoded[4] || "",
-            yearChangePercent: (encoded[5] || 0) / 10,
+            pricePercent: (encoded[5] || 1000) / 10,
+            ticker: encoded[6] || "",
+            yearChangePercent: (encoded[7] || 0) / 10,
+            isOFZ: isOFZ,
           };
 
         case "currency":
           return {
             ...base,
-            price: (encoded[3] || 0) / 100,
-            code: encoded[4] || "",
-            yearChangePercent: (encoded[5] || 0) / 10,
+            price: (encoded[5] || 0) / 100,
+            code: encoded[6] || "",
+            yearChangePercent: (encoded[7] || 0) / 10,
           };
 
         case "deposit":
           return {
             ...base,
-            value: encoded[3] || 0,
-            rate: (encoded[4] || 0) / 10,
-            termMonths: encoded[5] || 12,
-            yearChangePercent: (encoded[4] || 0) / 10, // ставка = доходность
+            value: encoded[5] || 0,
+            rate: (encoded[6] || 0) / 10,
+            termMonths: encoded[7] || 12,
+            yearChangePercent: (encoded[6] || 0) / 10,
           };
 
         case "realestate":
@@ -205,10 +319,11 @@ const decodePortfolioData = (encodedString) => {
 
           return {
             ...base,
-            value: encoded[3] || 0,
-            category: catMap[encoded[4]] || "Жилая недвижимость",
-            yieldPercent: (encoded[5] || 0) / 10,
-            yearChangePercent: (encoded[5] || 0) / 10,
+            value: encoded[5] || 0,
+            category: catMap[encoded[6]] || "Жилая недвижимость",
+            yieldPercent: (encoded[7] || 0) / 10,
+            yearChangePercent: (encoded[7] || 0) / 10,
+            address: encoded[8] || "Не указан",
           };
 
         case "business":
@@ -227,16 +342,17 @@ const decodePortfolioData = (encodedString) => {
 
           return {
             ...base,
-            value: encoded[3] || 0,
-            businessType: busMap[encoded[4]] || "Малый бизнес",
-            monthlyProfit: encoded[5] || 0,
-            yearChangePercent: 0, // для бизнеса рассчитывается отдельно
+            value: encoded[5] || 0,
+            businessType: busMap[encoded[6]] || "Малый бизнес",
+            monthlyProfit: encoded[7] || 0,
+            profitMargin: (encoded[8] || 0) / 10,
+            yearChangePercent: 0,
           };
 
         default:
           return {
             ...base,
-            value: encoded[3] || 0,
+            value: encoded[5] || 0,
           };
       }
     });
@@ -263,7 +379,7 @@ export const usePortfolioSharing = () => {
   // Получить данные портфеля из URL
   const getPortfolioFromUrl = useCallback(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const data = urlParams.get("d"); // Используем 'd' (data) вместо 'p'
+    const data = urlParams.get("d"); // Используем 'd' (data)
 
     if (!data) {
       setIsLoading(false);
@@ -271,7 +387,6 @@ export const usePortfolioSharing = () => {
     }
 
     try {
-      // Формат может быть просто данные или id:данные
       let id = null;
       let compressedData = data;
 
@@ -280,7 +395,6 @@ export const usePortfolioSharing = () => {
         id = data.substring(0, 4);
         compressedData = data.substring(5);
       } else {
-        // Нет ID в данных, генерируем новый
         id = generateShortId();
       }
 
@@ -339,14 +453,13 @@ export const usePortfolioSharing = () => {
           warning: "Ссылка очень длинная. ID не был добавлен в URL.",
         };
       } else {
-        // Все равно слишком длинная
         return {
           success: false,
           portfolioId: shortId,
           shareUrl: null,
-          error: `Портфель слишком большой (${shareUrl.length} символов). Максимально допустимо ~2000 символов. Уменьшите количество активов или их названия.`,
+          error: `Портфель слишком большой (${shareUrl.length} символов). Максимально допустимо ~2000 символов.`,
           suggestion:
-            "Попробуйте удалить некоторые активы или использовать более короткие названия",
+            "Удалите некоторые активы или используйте более короткие названия",
         };
       }
     }
@@ -365,10 +478,10 @@ export const usePortfolioSharing = () => {
     };
   }, []);
 
-  // Обновление портфеля (аналогично сохранению)
+  // Обновление портфеля
   const updatePortfolio = useCallback(
     async (assets, currentPortfolioId = null) => {
-      return savePortfolio(assets); // Используем ту же логику
+      return savePortfolio(assets);
     },
     [savePortfolio]
   );
