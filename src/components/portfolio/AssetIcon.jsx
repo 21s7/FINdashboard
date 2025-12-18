@@ -109,6 +109,36 @@ const AssetIcon = ({ asset, className = "" }) => {
         );
 
       case "has-icon":
+        // Для валют и криптовалют ищем иконку в исходных данных
+        if (asset.type === "currency" || asset.type === "crypto") {
+          // Пытаемся найти иконку в Redux store или использовать стандартные
+          const currencyIconUrl = asset.iconUrl || getCurrencyIconUrl(asset);
+          if (
+            currencyIconUrl &&
+            currencyIconUrl !== "—" &&
+            currencyIconUrl !== ""
+          ) {
+            return (
+              <img
+                src={currencyIconUrl}
+                alt={asset.name}
+                className={`asset-icon ${className}`}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  const parent = e.target.parentElement;
+                  const defaultIconDiv = parent.querySelector(
+                    ".asset-icon-default"
+                  );
+                  if (defaultIconDiv) {
+                    defaultIconDiv.style.display = "flex";
+                  }
+                }}
+              />
+            );
+          }
+        }
+
+        // Общая логика для других типов с иконками
         if (asset.iconUrl && asset.iconUrl !== "—" && asset.iconUrl !== "") {
           const handleImageError = (e) => {
             e.target.style.display = "none";
@@ -203,6 +233,28 @@ const AssetIcon = ({ asset, className = "" }) => {
     );
   }
 
+  // Для валют и криптовалют пытаемся получить иконку
+  if (asset.type === "currency" || asset.type === "crypto") {
+    const currencyIconUrl = asset.iconUrl || getCurrencyIconUrl(asset);
+    if (currencyIconUrl && currencyIconUrl !== "—" && currencyIconUrl !== "") {
+      return (
+        <img
+          src={currencyIconUrl}
+          alt={asset.name}
+          className={`asset-icon ${className}`}
+          onError={(e) => {
+            e.target.style.display = "none";
+            const parent = e.target.parentElement;
+            const defaultIconDiv = parent.querySelector(".asset-icon-default");
+            if (defaultIconDiv) {
+              defaultIconDiv.style.display = "flex";
+            }
+          }}
+        />
+      );
+    }
+  }
+
   const showDefaultIcon =
     !asset.iconUrl || asset.iconUrl === "—" || asset.iconUrl === "";
 
@@ -239,6 +291,24 @@ const AssetIcon = ({ asset, className = "" }) => {
       </div>
     </div>
   );
+};
+
+// Вспомогательная функция для получения URL иконки валюты/крипты
+const getCurrencyIconUrl = (asset) => {
+  if (!asset) return null;
+
+  // Для валют
+  if (asset.type === "currency" && asset.code) {
+    return `https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/${asset.code.toLowerCase()}.png`;
+  }
+
+  // Для криптовалют
+  if (asset.type === "crypto" && (asset.ticker || asset.code)) {
+    const ticker = (asset.ticker || asset.code || "").toLowerCase();
+    return `https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/${ticker}.png`;
+  }
+
+  return null;
 };
 
 export default AssetIcon;

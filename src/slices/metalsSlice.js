@@ -7,7 +7,7 @@ import silverIcon from "../assets/img/silver.png";
 import platinumIcon from "../assets/img/platinum.png";
 import palladiumIcon from "../assets/img/palladium.png";
 
-const API_KEY = "72b3bbda75cf31c863c87e57b1b76393";
+const API_KEY = "cd0d2124f9083e64567f65d05ca5e454"; // cd0d2124f9083e64567f65d05ca5e454, 72b3bbda75cf31c863c87e57b1b76393
 const BASE_CURRENCY = "RUB";
 const METALS = ["XAU", "XAG", "XPT", "XPD"];
 const OUNCE_IN_GRAMS = 31.1035;

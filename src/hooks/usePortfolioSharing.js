@@ -37,6 +37,12 @@ const getAssetIconKey = (asset) => {
       if (asset.iconUrl && asset.iconUrl !== "—" && asset.iconUrl !== "") {
         return "has-icon"; // Флаг, что у актива есть иконка
       }
+
+      // Для валют и криптовалют сохраняем их оригинальные иконки
+      if (asset.type === "currency" || asset.type === "crypto") {
+        return "has-icon"; // Всегда сохраняем иконки для валют и крипты
+      }
+
       return "default";
   }
 };
@@ -91,22 +97,21 @@ const encodePortfolioData = (assets) => {
       };
       encoded.push(iconMap[iconKey] || "0"); // 3: ключ иконки
 
-      // Сохраняем иконку URL только если она есть и не стандартная
-      if (
-        asset.iconUrl &&
-        asset.iconUrl !== "—" &&
-        asset.iconUrl !== "" &&
-        !["deposit", "realestate", "business"].includes(asset.type)
-      ) {
-        // Сжимаем URL (оставляем только домен и путь, убираем http:// и т.д.)
-        let shortUrl = asset.iconUrl
-          .replace(/^https?:\/\//, "")
-          .replace(/^www\./, "")
-          .split("/")
-          .slice(0, 3) // Берем только первые 3 части пути
-          .join("/");
-
-        encoded.push(shortUrl); // 4: короткий URL иконки
+      // Сохраняем иконку URL для всех типов, которые имеют кастомные иконки
+      if (asset.iconUrl && asset.iconUrl !== "—" && asset.iconUrl !== "") {
+        // Для валют и криптовалют сохраняем полный URL
+        if (asset.type === "currency" || asset.type === "crypto") {
+          encoded.push(asset.iconUrl); // 4: полный URL иконки
+        } else {
+          // Для других типов сжимаем URL
+          let shortUrl = asset.iconUrl
+            .replace(/^https?:\/\//, "")
+            .replace(/^www\./, "")
+            .split("/")
+            .slice(0, 3)
+            .join("/");
+          encoded.push(shortUrl); // 4: короткий URL иконки
+        }
       } else {
         encoded.push(""); // 4: пустая строка для иконки
       }
@@ -119,6 +124,10 @@ const encodePortfolioData = (assets) => {
           encoded.push(Math.round((asset.price || 0) * 100) || 0); // 5: цена в копейках
           encoded.push(asset.ticker || ""); // 6: тикер
           encoded.push(Math.round((asset.yearChangePercent || 0) * 10)); // 7: доходность *10
+          // Сохраняем код для валют и крипты для восстановления иконок
+          if (asset.type === "crypto" || asset.type === "currency") {
+            encoded.push(asset.code || asset.ticker || ""); // 8: код/тикер для восстановления
+          }
           break;
 
         case "bond":
@@ -131,6 +140,7 @@ const encodePortfolioData = (assets) => {
           encoded.push(Math.round((asset.price || 0) * 100) || 0); // 5: цена в копейках
           encoded.push(asset.code || ""); // 6: код
           encoded.push(Math.round((asset.yearChangePercent || 0) * 10)); // 7: доходность *10
+          encoded.push(asset.code || ""); // 8: код для восстановления иконки
           break;
 
         case "deposit":
@@ -256,23 +266,56 @@ const decodePortfolioData = (encodedString) => {
 
       const iconInfo = iconReverseMap[iconKeyChar] || iconReverseMap["0"];
 
-      // Если есть URL иконки, восстанавливаем его
+      // Восстанавливаем URL иконки
       let iconUrl = null;
       if (iconInfo.key === "has-icon" && iconInfo.url) {
-        // Восстанавливаем URL иконки (упрощенная версия)
-        iconUrl = `https://${iconInfo.url}`;
+        // Для валют и криптовалют URL уже полный
+        if (type === "currency" || type === "crypto") {
+          iconUrl = iconInfo.url;
+        } else {
+          // Для других типов восстанавливаем из сокращенного URL
+          if (!iconInfo.url.startsWith("http")) {
+            iconUrl = `https://${iconInfo.url}`;
+          } else {
+            iconUrl = iconInfo.url;
+          }
+        }
       }
 
       // Добавляем информацию об иконке
       base.iconInfo = iconInfo.key;
       if (iconUrl) {
         base.iconUrl = iconUrl;
+      } else if (type === "currency" || type === "crypto") {
+        // Для валют и крипты пытаемся восстановить иконку из кода/тикера
+        const code = encoded[8] || encoded[6] || "";
+        if (code) {
+          // Это будет обработано компонентом AssetIcon
+          base.iconInfo = "has-icon";
+        }
       }
 
       // Восстанавливаем в зависимости от типа
       switch (type) {
         case "share":
+          return {
+            ...base,
+            price: (encoded[5] || 0) / 100,
+            ticker: encoded[6] || "",
+            yearChangePercent: (encoded[7] || 0) / 10,
+            hasCustomLogo: iconInfo.key === "has-icon",
+          };
+
         case "crypto":
+          return {
+            ...base,
+            price: (encoded[5] || 0) / 100,
+            ticker: encoded[6] || "",
+            code: encoded[6] || "",
+            yearChangePercent: (encoded[7] || 0) / 10,
+            iconInfo: "has-icon", // Всегда помечаем что есть иконка
+          };
+
         case "metal":
           return {
             ...base,
@@ -298,6 +341,7 @@ const decodePortfolioData = (encodedString) => {
             price: (encoded[5] || 0) / 100,
             code: encoded[6] || "",
             yearChangePercent: (encoded[7] || 0) / 10,
+            iconInfo: "has-icon", // Всегда помечаем что есть иконка
           };
 
         case "deposit":
