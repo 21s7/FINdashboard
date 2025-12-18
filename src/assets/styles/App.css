@@ -1,5 +1,30 @@
 /* src/assets/styles/App.css */
 
+/* Предотвращение горизонтального скролла */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Гарантия отсутствия горизонтального скролла */
+#root {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Для контейнеров с графиками */
+.recharts-responsive-container {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Для всех контейнеров с содержимым */
+div[class*="Секция"],
+div[class*="секция"] {
+  overflow-x: hidden;
+}
+
 /* Светлая тема */
 .light-theme {
   --primary-color: #2563eb;
@@ -1072,6 +1097,7 @@ textarea::placeholder {
   min-height: 80px;
 }
 
+/* Обновленные стили для total-amount */
 .total-amount {
   font-size: 4rem;
   font-weight: 900;
@@ -1089,12 +1115,107 @@ textarea::placeholder {
   display: inline-block;
   cursor: pointer;
   transition: var(--transition);
-  white-space: nowrap;
+
+  /* Ключевые изменения для предотвращения скролла */
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
+  hyphens: auto;
+
+  /* Гибкая система размеров */
+  font-size: clamp(2rem, 8vw, 4rem);
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
+.total-value-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 80px;
+
+  /* Предотвращаем горизонтальный скролл */
+  overflow: hidden;
+  position: relative;
+}
+
+/* Специальные медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+  .total-value-wrapper {
+    min-height: 60px;
+    padding: 0 0.5rem;
+  }
+
+  .total-amount {
+    /* Динамический размер шрифта на основе ширины экрана */
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    line-height: 1.1;
+
+    /* Уменьшаем межбуквенный интервал для экономии места */
+    letter-spacing: -0.03em;
+
+    /* Дополнительные гарантии против скролла */
+    max-width: 100vw;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  .total-value-wrapper {
+    min-height: 50px;
+    padding: 0 0.25rem;
+  }
+
+  .total-amount {
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+
+    /* Для очень длинных сумм используем компактный формат */
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Альтернативный стиль для очень длинных сумм */
+  .total-amount.compact {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.75rem;
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    color: var(--dark-text-primary);
+    -webkit-text-fill-color: initial;
+    background-clip: border-box;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .total-value-wrapper {
+    min-height: 40px;
+  }
+
+  .total-amount {
+    font-size: clamp(1rem, 4vw, 2rem);
+
+    /* Для экстремально маленьких экранов */
+    line-height: 1.2;
+    padding: 0.25rem;
+  }
+}
+
+/* Предотвращение горизонтального скролла на всем приложении */
+.App {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.блок {
+  overflow-x: hidden;
+}
 /* Стили для Diagram */
 .diagram-container {
   position: relative;
