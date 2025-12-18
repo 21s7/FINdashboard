@@ -1,6 +1,8 @@
 // src/slices/currencySlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import stars from "../assets/img/stars.png";
+import robux from "../assets/img/robux.png";
 
 // Маппинг валют на коды стран для флагов
 const currencyToCountry = {
@@ -47,6 +49,9 @@ const currencyToCountry = {
   KRW: "kr", // Южная Корея
   JPY: "jp", // Япония
   RUB: "ru", // Россия
+  // Добавляем цифровые валюты
+  STARS: "stars", // телеграмм
+  ROBUX: "robux", // роблокс
 };
 
 export const fetchCurrency = createAsyncThunk(
@@ -93,6 +98,34 @@ export const fetchCurrency = createAsyncThunk(
       type: "currency",
       iconUrl: "https://flagsapi.com/RU/flat/64.png",
       countryCode: "ru",
+    });
+
+    // Добавляем пользовательскую валюту STARS
+    currencies.unshift({
+      id: "STARS",
+      ticker: "STR",
+      code: "STARS",
+      name: "Stars",
+      price: 1.5,
+      nominal: 1,
+      value: 1.5,
+      yearChangePercent: 0,
+      type: "currency",
+      iconUrl: stars,
+      countryCode: "stars",
+    });
+    currencies.unshift({
+      id: "ROBUX",
+      ticker: "RBX",
+      code: "ROBUX",
+      name: "Robux",
+      price: 0.5,
+      nominal: 1,
+      value: 0.5,
+      yearChangePercent: 0,
+      type: "currency",
+      iconUrl: robux,
+      countryCode: "stars",
     });
 
     return currencies;
