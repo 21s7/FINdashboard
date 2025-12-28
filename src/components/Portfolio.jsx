@@ -1,15 +1,17 @@
-// src/components/Portfolio.jsx
+//src/components/Portfolio.jsx
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeAsset, updateAssetStats } from "../slices/portfolioSlice";
 import { usePortfolioGroups } from "../hooks/usePortfolioGroups";
 import { AssetGroup } from "./portfolio/AssetGroup";
+import PortfolioPDFExporter from "./pdf/PortfolioPDFExporter";
 
 const Portfolio = ({ savedPortfolioId, hasUnsavedChanges, onSaveChanges }) => {
   const dispatch = useDispatch();
   const portfolioAssets = useSelector((state) => state.portfolio.assets);
   const sharesData = useSelector((state) => state.shares.items);
+  const [showExportSuccess, setShowExportSuccess] = useState(false);
 
   const groupedAssets = usePortfolioGroups(portfolioAssets);
 
@@ -35,14 +37,33 @@ const Portfolio = ({ savedPortfolioId, hasUnsavedChanges, onSaveChanges }) => {
     });
   }, [sharesData, portfolioAssets, dispatch]);
 
+  // Обработчик успешного экспорта
+  const handleExportComplete = () => {
+    setShowExportSuccess(true);
+    setTimeout(() => setShowExportSuccess(false), 3000);
+  };
+
   return (
     <div className="portfolioView">
       <div className="header">
         <div style={{ flex: 1 }}>
-          <h1 className="title">
+          <h1
+            className="title"
+            style={{
+              cursor: portfolioAssets.length > 0 ? "pointer" : "default",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+            onClick={() => {
+              if (portfolioAssets.length > 0) {
+                // Можно добавить дополнительную логику при клике
+              }
+            }}
+          >
+            <span style={{ marginRight: "0.5rem" }}>📁</span>
             {savedPortfolioId ? (
               <>
-                <span style={{ marginRight: "0.5rem" }}>📁</span>
                 Портфель: {savedPortfolioId}
                 {hasUnsavedChanges && (
                   <span
@@ -66,8 +87,40 @@ const Portfolio = ({ savedPortfolioId, hasUnsavedChanges, onSaveChanges }) => {
           </h1>
         </div>
 
-        {savedPortfolioId && hasUnsavedChanges && onSaveChanges && (
-          <div style={{ flexShrink: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            flexShrink: 0,
+          }}
+        >
+          {portfolioAssets.length > 0 && (
+            <>
+              <PortfolioPDFExporter
+                portfolioName={savedPortfolioId || "Мой портфель"}
+                onExportComplete={handleExportComplete}
+              />
+
+              {showExportSuccess && (
+                <div
+                  style={{
+                    padding: "0.5rem 1rem",
+                    background: "rgba(16, 185, 129, 0.1)",
+                    border: "1px solid rgba(16, 185, 129, 0.3)",
+                    color: "var(--secondary-color)",
+                    borderRadius: "var(--border-radius)",
+                    fontSize: "0.85rem",
+                    animation: "fadeIn 0.3s ease-out",
+                  }}
+                >
+                  ✅ PDF успешно создан
+                </div>
+              )}
+            </>
+          )}
+
+          {savedPortfolioId && hasUnsavedChanges && onSaveChanges && (
             <button
               onClick={onSaveChanges}
               style={{
@@ -98,8 +151,8 @@ const Portfolio = ({ savedPortfolioId, hasUnsavedChanges, onSaveChanges }) => {
             >
               💾 Сохранить изменения
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="portfolioGrid">
