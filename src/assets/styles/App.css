@@ -2413,369 +2413,339 @@ textarea {
   }
 }
 
-/* ===== СТИЛИ ДЛЯ ЭКСПОРТА PDF ===== */
+/* ===== ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ЭКСПОРТА PDF ===== */
 
-/* Стили для кнопки экспорта PDF */
-.pdf-export-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.pdf-export-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-}
-
-.pdf-export-button:active {
-  transform: translateY(0);
-}
-
-.pdf-export-button.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Стили для уведомления об успешном экспорте */
-.pdf-export-notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 1rem 1.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  z-index: 1000;
-  animation: slideInRight 0.3s ease-out;
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-
-.pdf-export-notification.hiding {
-  animation: slideOutRight 0.3s ease-out;
-}
-
-/* Стили для модального окна предпросмотра PDF */
-.pdf-preview-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  backdrop-filter: blur(5px);
-}
-
-.pdf-preview-content {
-  background: white;
-  border-radius: var(--border-radius-lg);
-  width: 90%;
-  max-width: 1000px;
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.pdf-preview-header {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pdf-preview-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.pdf-preview-close {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.pdf-preview-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.pdf-preview-body {
-  flex: 1;
-  overflow: auto;
-  padding: 2rem;
-}
-
-/* Адаптивные стили для PDF контента */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .pdf-content,
-  .pdf-content * {
-    visibility: visible;
-  }
-
-  .pdf-content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-}
-
-/* Анимация загрузки PDF */
-.pdf-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-  backdrop-filter: blur(10px);
-}
-
-.pdf-loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #3b82f6;
-  animation: spin 1s ease-in-out infinite;
-}
-
+/* Анимация спиннера */
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 
-.pdf-loading-text {
-  color: white;
-  margin-top: 1rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+/* Стили для уведомлений */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Стили для кнопки в шапке портфеля */
-.portfolio-header-export-btn {
+/* Подсказка для экспорта */
+.pdf-export-hint {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: var(--dark-text-secondary);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
+  gap: 0.75rem;
+  max-width: 300px;
+  margin-top: 1rem;
+}
+
+.pdf-export-hint::before {
+  content: "💡";
+  font-size: 1rem;
+}
+
+/* Сообщение о пустом портфеле */
+.portfolio-empty-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--dark-surface);
   border-radius: var(--border-radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  border: 2px dashed var(--dark-border);
 }
 
-.portfolio-header-export-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
-}
-
-.portfolio-header-export-btn:active {
-  transform: translateY(0);
-}
-
-.portfolio-header-export-btn:disabled {
+.portfolio-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
   opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
 }
 
-/* Информация о портфеле для PDF */
-.portfolio-pdf-info {
+.portfolio-empty-title {
+  font-size: 1.5rem;
+  color: var(--dark-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-empty-subtitle {
+  font-size: 0.9rem;
+  color: var(--dark-text-secondary);
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Информационная панель портфеля */
+.portfolio-info-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: var(--dark-surface);
+  padding: 1rem 1.5rem;
   border-radius: var(--border-radius);
-  padding: 1rem;
-  margin-bottom: 1.5rem;
   border: 1px solid var(--dark-border);
-}
-
-.portfolio-pdf-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.portfolio-pdf-stat {
-  background: var(--dark-surface);
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--dark-border);
+.portfolio-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.portfolio-stat {
   text-align: center;
 }
 
-.portfolio-pdf-stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
+.portfolio-stat-value {
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--primary-color);
-  margin-bottom: 0.25rem;
+  display: block;
 }
 
-.portfolio-pdf-stat-label {
-  font-size: 0.875rem;
+.portfolio-stat-label {
+  font-size: 0.75rem;
   color: var(--dark-text-secondary);
+  display: block;
+  margin-top: 0.25rem;
 }
 
-/* Стили для таблицы активов в PDF */
-.portfolio-pdf-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
+/* Кнопки действий портфеля */
+.portfolio-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
-.portfolio-pdf-table th {
-  background: var(--dark-surface);
-  color: var(--dark-text-secondary);
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid var(--dark-border);
-  font-weight: 600;
+/* Стили для состояния загрузки */
+.pdf-export-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.7;
 }
 
-.portfolio-pdf-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--dark-divider);
-  color: var(--dark-text-primary);
+.pdf-export-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: currentColor;
+  animation: spin 1s linear infinite;
 }
 
-.portfolio-pdf-table tr:hover {
-  background: var(--dark-surface-hover);
-}
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .portfolio-info-panel {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
 
-.portfolio-pdf-asset-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  margin-right: 0.5rem;
-  vertical-align: middle;
-}
+  .portfolio-stats {
+    justify-content: space-around;
+  }
 
-/* Стили для групп активов в PDF */
-.portfolio-pdf-group {
-  margin-bottom: 2rem;
-  page-break-inside: avoid;
-}
+  .portfolio-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-.portfolio-pdf-group-header {
-  background: var(--dark-surface);
-  padding: 1rem;
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
-  border: 1px solid var(--dark-border);
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.portfolio-pdf-group-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--dark-text-primary);
-  margin: 0;
-}
-
-.portfolio-pdf-group-content {
-  background: var(--dark-surface);
-  padding: 1rem;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
-  border: 1px solid var(--dark-border);
-  border-top: none;
+  .pdf-export-hint {
+    max-width: 100%;
+    text-align: center;
+  }
 }
 
 /* Печать */
 @media print {
-  @page {
-    margin: 20mm;
-  }
-
-  body {
-    background: white !important;
-    color: black !important;
-  }
-
-  .portfolio-pdf-content {
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-  }
-
-  .portfolio-pdf-table {
-    font-size: 10pt !important;
-  }
-
-  .portfolio-pdf-table th,
-  .portfolio-pdf-table td {
-    padding: 4pt !important;
-  }
-
   .no-print {
     display: none !important;
   }
 
-  a {
-    color: black !important;
-    text-decoration: none !important;
+  .portfolio-header-export-btn,
+  .portfolio-save-changes-btn {
+    display: none !important;
   }
+}
+
+/* Стили для заголовка портфеля в PDF */
+.pdf-portfolio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.pdf-logo-container {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdf-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.pdf-title-container {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.pdf-main-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 5px 0;
+}
+
+.pdf-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3b82f6;
+  margin: 0 0 8px 0;
+}
+
+.pdf-date {
+  font-size: 11px;
+  color: #666666;
+}
+
+.pdf-total-value {
+  text-align: right;
+}
+
+.pdf-total-label {
+  font-size: 11px;
+  color: #666666;
+  margin-bottom: 5px;
+}
+
+.pdf-total-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+/* Стили для таблицы активов в PDF */
+.pdf-asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 11px;
+}
+
+.pdf-asset-table th {
+  background: #f8fafc;
+  padding: 10px 8px;
+  text-align: left;
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pdf-asset-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.pdf-asset-icon-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-asset-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pdf-asset-icon-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.pdf-asset-icon-text {
+  font-size: 12px;
+}
+
+.pdf-asset-info {
+  min-width: 0;
+}
+
+.pdf-asset-name {
+  font-weight: 500;
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdf-asset-ticker {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+/* Моноширинный текст для чисел */
+.pdf-monospace {
+  font-family: "Courier New", "Courier", monospace;
+}
+
+/* Цвета для доходности */
+.pdf-positive {
+  color: #059669;
+}
+
+.pdf-negative {
+  color: #dc2626;
+}
+
+/* Футер PDF */
+.pdf-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+  color: #64748b;
+  font-size: 10px;
+  text-align: center;
+}
+
+.pdf-footer-brand {
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.pdf-footer-note {
+  opacity: 0.7;
 }

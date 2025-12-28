@@ -16,18 +16,6 @@ export const ASSET_TYPE_COLORS = {
   business: "#8b5cf6",
 };
 
-// Иконки для типов активов (emoji)
-export const ASSET_TYPE_ICONS = {
-  share: "📈",
-  bond: "📋",
-  currency: "💵",
-  crypto: "₿",
-  metal: "🥇",
-  deposit: "🏦",
-  realestate: "🏠",
-  business: "🏢",
-};
-
 // Русские названия типов активов
 export const ASSET_TYPE_NAMES = {
   share: "Акции",
@@ -73,7 +61,11 @@ export const formatPercentage = (value) => {
  * Рассчитывает стоимость актива
  */
 export const calculateAssetValue = (asset) => {
-  if (asset.type === "deposit") {
+  if (
+    asset.type === "deposit" ||
+    asset.type === "realestate" ||
+    asset.type === "business"
+  ) {
     return asset.value || 0;
   }
 
@@ -111,22 +103,6 @@ export const calculatePortfolioValue = (assets) => {
 };
 
 /**
- * Рассчитывает общую доходность портфеля
- */
-export const calculatePortfolioReturn = (assets) => {
-  const totalValue = calculatePortfolioValue(assets);
-  if (totalValue === 0) return 0;
-
-  const totalProfit = assets.reduce((sum, asset) => {
-    const assetValue = calculateAssetValue(asset);
-    const profit = (assetValue * (asset.yearChangePercent || 0)) / 100;
-    return sum + profit;
-  }, 0);
-
-  return (totalProfit / totalValue) * 100;
-};
-
-/**
  * Генерирует уникальное имя файла для PDF
  */
 export const generatePDFFileName = (portfolioName) => {
@@ -141,33 +117,5 @@ export const generatePDFFileName = (portfolioName) => {
     .replace(/_+/g, "_")
     .replace(/^_|_$/g, "");
 
-  return `${safeName}_${dateStr}_${timeStr}.pdf`;
-};
-
-/**
- * Преобразует цвет в hex формате в RGB объект
- */
-export const hexToRgb = (hex) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
-};
-
-/**
- * Создает градиентный цвет для PDF
- */
-export const createGradientColor = (color1, color2, percentage = 50) => {
-  const rgb1 = hexToRgb(color1) || { r: 59, g: 130, b: 246 };
-  const rgb2 = hexToRgb(color2) || { r: 29, g: 78, b: 216 };
-
-  const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * (percentage / 100));
-  const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * (percentage / 100));
-  const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * (percentage / 100));
-
-  return `rgb(${r}, ${g}, ${b})`;
+  return `Портфель_${safeName}_${dateStr}_${timeStr}.pdf`;
 };

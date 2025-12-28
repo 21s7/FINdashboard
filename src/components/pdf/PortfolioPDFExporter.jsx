@@ -1,13 +1,17 @@
 //src/components/pdf/PortfolioPDFExporter.jsx
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useSelector } from "react-redux";
+import Modal from "../Modal";
+import logo from "../../assets/img/logo.png";
 
 const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
-  const portfolioRef = useRef();
   const assets = useSelector((state) => state.portfolio.assets);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Функция для форматирования валюты
   const formatCurrency = (num, suffix = "₽") => {
@@ -24,7 +28,11 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
   // Рассчитываем общую стоимость
   const calculateTotalValue = () => {
     return assets.reduce((sum, asset) => {
-      if (asset.type === "deposit") {
+      if (
+        asset.type === "deposit" ||
+        asset.type === "realestate" ||
+        asset.type === "business"
+      ) {
         return sum + (asset.value || 0);
       }
 
@@ -38,27 +46,6 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
           : unitPrice * asset.quantity;
       return sum + total;
     }, 0);
-  };
-
-  // Рассчитываем общую доходность
-  const calculateTotalReturn = () => {
-    const totalValue = calculateTotalValue();
-    const totalProfit = assets.reduce((sum, asset) => {
-      if (asset.yearChangePercent && asset.yearChangePercent !== 0) {
-        const assetValue =
-          asset.type === "deposit"
-            ? asset.value || 0
-            : asset.type === "bond"
-              ? (asset.pricePercent / 100) * asset.quantity * 1000
-              : (asset.price || asset.value || 0) * asset.quantity;
-
-        const profit = (assetValue * asset.yearChangePercent) / 100;
-        return sum + profit;
-      }
-      return sum;
-    }, 0);
-
-    return totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
   };
 
   // Группируем активы по типам
@@ -90,39 +77,376 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
     return typeNames[type] || type;
   };
 
-  // Генерация PDF
-  const generatePDF = async () => {
-    if (!assets || assets.length === 0) {
-      alert("Портфель пуст. Невозможно сгенерировать PDF.");
-      return;
+  // Функция для получения иконки актива
+  const getAssetIcon = (asset) => {
+    // Используем сохраненную иконку из портфеля
+    if (asset.iconUrl && asset.iconUrl !== "—" && asset.iconUrl !== "") {
+      return asset.iconUrl;
     }
 
-    try {
-      // Создаем временный контейнер для рендеринга PDF
-      const pdfContainer = document.createElement("div");
-      pdfContainer.style.position = "absolute";
-      pdfContainer.style.left = "-9999px";
-      pdfContainer.style.top = "-9999px";
-      pdfContainer.style.width = "210mm"; // A4 width
-      pdfContainer.style.backgroundColor = "#ffffff";
-      pdfContainer.style.color = "#000000";
-      pdfContainer.style.fontFamily = "Arial, sans-serif";
-      pdfContainer.style.padding = "20mm";
-      pdfContainer.style.boxSizing = "border-box";
-      pdfContainer.style.lineHeight = "1.5";
+    // Для типов с дефолтными иконками
+    const defaultIcons = {
+      bond: "📋",
+      deposit: "🏦",
+      realestate: "🏠",
+      business: "🏢",
+      share: "📈",
+      crypto: "₿",
+      currency: "💵",
+      metal: "🥇",
+    };
 
-      // Создаем содержимое PDF
-      pdfContainer.innerHTML = `
-        <div style="font-family: 'Arial', sans-serif; color: #000000;">
-          <!-- Заголовок -->
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="font-size: 24px; color: #1a1a1a; margin-bottom: 10px;">
-              📊 Отчет по инвестиционному портфелю
-            </h1>
-            <h2 style="font-size: 18px; color: #3b82f6; margin-bottom: 15px;">
-              ${portfolioName || "Мой Портфель"}
-            </h2>
-            <div style="font-size: 14px; color: #666666;">
+    return defaultIcons[asset.type] || "📊";
+  };
+
+  // Проверяем, является ли строка URL изображением
+  const isImageUrl = (url) => {
+    if (!url) return false;
+    // Проверяем, является ли строка валидным URL
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("data:")
+    ) {
+      return true;
+    }
+    // Проверяем расширения файлов
+    return /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(url);
+  };
+
+  // Создаем HTML для PDF с правильным рендерингом
+  const createPDFHTML = () => {
+    const totalValue = calculateTotalValue();
+    const groups = groupAssetsByType();
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            color: #000000;
+            margin: 0;
+            padding: 15mm;
+            font-size: 12px;
+            line-height: 1.5;
+            background: #ffffff;
+          }
+          
+          .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3b82f6;
+          }
+          
+          .logo-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            margin-right: 15px;
+          }
+          
+          .logo {
+            max-width: 100%;
+            max-height: 100%;
+          }
+          
+          .title-container {
+            flex: 1;
+          }
+          
+          .main-title {
+            font-size: 20px;
+            color: #1a1a1a;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+          }
+          
+          .subtitle {
+            font-size: 16px;
+            color: #3b82f6;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+          }
+          
+          .date {
+            font-size: 11px;
+            color: #666666;
+          }
+          
+          .total-value-container {
+            text-align: right;
+          }
+          
+          .total-label {
+            font-size: 11px;
+            color: #666666;
+            margin-bottom: 5px;
+          }
+          
+          .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+          }
+          
+          .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+          }
+          
+          .stat-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+          }
+          
+          .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 5px;
+          }
+          
+          .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+          }
+          
+          .distribution-section {
+            margin-bottom: 30px;
+          }
+          
+          .section-title {
+            font-size: 16px;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+          }
+          
+          .distribution-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+          }
+          
+          .type-card {
+            flex: 1;
+            min-width: 150px;
+            background: #3b82f610;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+          }
+          
+          .type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          }
+          
+          .type-name {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+          }
+          
+          .type-percentage {
+            font-size: 12px;
+            color: #3b82f6;
+            font-weight: 600;
+          }
+          
+          .type-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+          }
+          
+          .type-count {
+            font-size: 11px;
+            color: #94a3b8;
+          }
+          
+          .assets-section {
+            margin-bottom: 30px;
+          }
+          
+          .group-container {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+          }
+          
+          .group-header {
+            background: #3b82f610;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+            border: 1px solid #3b82f630;
+            border-bottom: none;
+            margin-bottom: 0;
+          }
+          
+          .group-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .group-title {
+            font-size: 14px;
+            color: #334155;
+            margin: 0;
+            font-weight: 600;
+          }
+          
+          .group-summary {
+            font-size: 12px;
+            color: #64748b;
+          }
+          
+          .asset-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            border: 1px solid #3b82f630;
+            border-top: none;
+          }
+          
+          .table-header {
+            background: #3b82f605;
+          }
+          
+          .table-header th {
+            padding: 10px 8px;
+            text-align: left;
+            color: #475569;
+            font-weight: 600;
+            border-bottom: 1px solid #3b82f630;
+          }
+          
+          .asset-row {
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+          }
+          
+          .asset-row:last-child {
+            border-bottom: none;
+          }
+          
+          .asset-cell {
+            padding: 10px 8px;
+            vertical-align: middle;
+          }
+          
+          .asset-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .asset-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          }
+          
+          .icon-img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+          }
+          
+          .icon-text {
+            font-size: 12px;
+          }
+          
+          .asset-details {
+            min-width: 0;
+          }
+          
+          .asset-name {
+            font-weight: 500;
+            font-size: 11.5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          
+          .asset-ticker {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 1px;
+          }
+          
+          .text-right {
+            text-align: right;
+          }
+          
+          .monospace {
+            font-family: 'Courier New', 'Courier', monospace;
+          }
+          
+          .positive {
+            color: #059669;
+          }
+          
+          .negative {
+            color: #dc2626;
+          }
+          
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            color: #64748b;
+            font-size: 10px;
+            text-align: center;
+          }
+          
+          .footer-brand {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #475569;
+          }
+          
+          .footer-note {
+            opacity: 0.7;
+          }
+        </style>
+      </head>
+      <body>
+        <!-- Логотип и заголовок -->
+        <div class="header">
+          <div class="logo-container">
+            <img src="${logo}" alt="Logo" class="logo" />
+          </div>
+          <div class="title-container">
+            <h1 class="main-title">📊 Инвестиционный портфель</h1>
+            <h2 class="subtitle">${portfolioName || "Мой Портфель"}</h2>
+            <div class="date">
               Сгенерировано: ${new Date().toLocaleDateString("ru-RU", {
                 day: "2-digit",
                 month: "2-digit",
@@ -132,98 +456,147 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
               })}
             </div>
           </div>
-
-          <!-- Статистика портфеля -->
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                     color: white; 
-                     padding: 20px; 
-                     border-radius: 12px; 
-                     margin-bottom: 30px;
-                     display: flex;
-                     justify-content: space-between;
-                     align-items: center;">
-            <div>
-              <div style="font-size: 16px; opacity: 0.9;">Общая стоимость</div>
-              <div style="font-size: 28px; font-weight: bold;">${formatCurrency(calculateTotalValue())}</div>
-            </div>
-            <div>
-              <div style="font-size: 16px; opacity: 0.9;">Общая доходность</div>
-              <div style="font-size: 28px; font-weight: bold; color: ${calculateTotalReturn() >= 0 ? "#10b981" : "#ef4444"}">
-                ${formatPercentage(calculateTotalReturn())}
-              </div>
-            </div>
-            <div>
-              <div style="font-size: 16px; opacity: 0.9;">Количество активов</div>
-              <div style="font-size: 28px; font-weight: bold;">${assets.length}</div>
-            </div>
+          <div class="total-value-container">
+            <div class="total-label">Общая стоимость</div>
+            <div class="total-amount">${formatCurrency(totalValue)}</div>
           </div>
+        </div>
 
-          <!-- Диаграмма распределения (упрощенная) -->
-          <div style="margin-bottom: 30px;">
-            <h3 style="font-size: 18px; color: #1a1a1a; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 5px;">
-              📈 Распределение активов
-            </h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
-              ${Object.entries(groupAssetsByType())
-                .map(([type, typeAssets]) => {
-                  const typeValue = typeAssets.reduce((sum, asset) => {
-                    if (asset.type === "deposit")
-                      return sum + (asset.value || 0);
-                    const unitPrice =
-                      asset.type === "bond"
-                        ? asset.pricePercent
-                        : asset.price || asset.value || 0;
-                    const total =
-                      asset.type === "bond"
-                        ? (unitPrice / 100) * asset.quantity * 1000
-                        : unitPrice * asset.quantity;
-                    return sum + total;
-                  }, 0);
-                  const percentage = (typeValue / calculateTotalValue()) * 100;
+        <!-- Статистика портфеля -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Количество активов</div>
+            <div class="stat-value">${assets.length}</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #10b981;">
+            <div class="stat-label">Распределение</div>
+            <div class="stat-value">${Object.keys(groups).length} категорий</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #8b5cf6;">
+            <div class="stat-label">Позиций всего</div>
+            <div class="stat-value">${assets.reduce((sum, asset) => sum + (asset.quantity || 1), 0)}</div>
+          </div>
+        </div>
 
-                  return `
-                  <div style="flex: 1; min-width: 120px; background: #f8fafc; padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                    <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">${getTypeName(type)}</div>
-                    <div style="font-size: 16px; font-weight: bold; color: #1a1a1a;">${formatCurrency(typeValue)}</div>
-                    <div style="font-size: 14px; color: ${percentage >= 0 ? "#10b981" : "#ef4444"}">
+        <!-- Диаграмма распределения -->
+        <div class="distribution-section">
+          <h3 class="section-title">📈 Распределение активов</h3>
+          <div class="distribution-grid">
+            ${Object.entries(groups)
+              .map(([type, typeAssets]) => {
+                const typeValue = typeAssets.reduce((sum, asset) => {
+                  if (
+                    asset.type === "deposit" ||
+                    asset.type === "realestate" ||
+                    asset.type === "business"
+                  ) {
+                    return sum + (asset.value || 0);
+                  }
+                  const unitPrice =
+                    asset.type === "bond"
+                      ? asset.pricePercent
+                      : asset.price || asset.value || 0;
+                  const total =
+                    asset.type === "bond"
+                      ? (unitPrice / 100) * asset.quantity * 1000
+                      : unitPrice * asset.quantity;
+                  return sum + total;
+                }, 0);
+                const percentage =
+                  totalValue > 0 ? (typeValue / totalValue) * 100 : 0;
+                const typeColors = {
+                  share: "#3b82f6",
+                  bond: "#8b5cf6",
+                  currency: "#10b981",
+                  crypto: "#f59e0b",
+                  metal: "#f97316",
+                  deposit: "#06b6d4",
+                  realestate: "#ec4899",
+                  business: "#8b5cf6",
+                };
+                const color = typeColors[type] || "#3b82f6";
+
+                return `
+                <div class="type-card" style="background: ${color}10; border-left-color: ${color}">
+                  <div class="type-header">
+                    <div class="type-name">${getTypeName(type)}</div>
+                    <div class="type-percentage" style="color: ${color}">
                       ${percentage.toFixed(1)}%
                     </div>
                   </div>
-                `;
-                })
-                .join("")}
-            </div>
+                  <div class="type-value">${formatCurrency(typeValue)}</div>
+                  <div class="type-count">${typeAssets.length} позиций</div>
+                </div>
+              `;
+              })
+              .join("")}
           </div>
+        </div>
 
-          <!-- Детализация активов -->
-          <div>
-            <h3 style="font-size: 18px; color: #1a1a1a; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 5px;">
-              📋 Детализация активов
-            </h3>
-            
-            ${Object.entries(groupAssetsByType())
-              .map(
-                ([type, typeAssets]) => `
-              <div style="margin-bottom: 25px;">
-                <h4 style="font-size: 16px; color: #334155; background: #f1f5f9; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px;">
-                  ${getTypeName(type)} (${typeAssets.length} позиций)
-                </h4>
+        <!-- Детализация активов -->
+        <div class="assets-section">
+          <h3 class="section-title">📋 Детализация активов</h3>
+          
+          ${Object.entries(groups)
+            .map(([type, typeAssets]) => {
+              const typeColors = {
+                share: "#3b82f6",
+                bond: "#8b5cf6",
+                currency: "#10b981",
+                crypto: "#f59e0b",
+                metal: "#f97316",
+                deposit: "#06b6d4",
+                realestate: "#ec4899",
+                business: "#8b5cf6",
+              };
+              const color = typeColors[type] || "#3b82f6";
+              const groupValue = typeAssets.reduce((sum, asset) => {
+                if (
+                  asset.type === "deposit" ||
+                  asset.type === "realestate" ||
+                  asset.type === "business"
+                ) {
+                  return sum + (asset.value || 0);
+                }
+                const unitPrice =
+                  asset.type === "bond"
+                    ? asset.pricePercent
+                    : asset.price || asset.value || 0;
+                const total =
+                  asset.type === "bond"
+                    ? (unitPrice / 100) * asset.quantity * 1000
+                    : unitPrice * asset.quantity;
+                return sum + total;
+              }, 0);
+
+              return `
+              <div class="group-container">
+                <div class="group-header" style="background: ${color}10; border-color: ${color}30">
+                  <div class="group-title-row">
+                    <h4 class="group-title">${getTypeName(type)}</h4>
+                    <div class="group-summary">
+                      ${typeAssets.length} позиций • ${formatCurrency(groupValue)}
+                    </div>
+                  </div>
+                </div>
                 
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                  <thead>
-                    <tr style="background: #e2e8f0; color: #475569;">
-                      <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">Название</th>
-                      <th style="padding: 10px; text-align: right; border-bottom: 2px solid #cbd5e1;">Количество</th>
-                      <th style="padding: 10px; text-align: right; border-bottom: 2px solid #cbd5e1;">Цена</th>
-                      <th style="padding: 10px; text-align: right; border-bottom: 2px solid #cbd5e1;">Стоимость</th>
-                      <th style="padding: 10px; text-align: right; border-bottom: 2px solid #cbd5e1;">Доходность</th>
+                <table class="asset-table" style="border-color: ${color}30">
+                  <thead class="table-header" style="background: ${color}05">
+                    <tr>
+                      <th style="width: 35%">Актив</th>
+                      <th style="width: 15%; text-align: right">Кол-во</th>
+                      <th style="width: 15%; text-align: right">Цена</th>
+                      <th style="width: 20%; text-align: right">Стоимость</th>
+                      <th style="width: 15%; text-align: right">Доходность</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${typeAssets
                       .map((asset) => {
                         const assetValue =
-                          asset.type === "deposit"
+                          asset.type === "deposit" ||
+                          asset.type === "realestate" ||
+                          asset.type === "business"
                             ? asset.value || 0
                             : asset.type === "bond"
                               ? (asset.pricePercent / 100) *
@@ -244,116 +617,113 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
                               ? "ед."
                               : "шт";
 
+                        const assetIcon = getAssetIcon(asset);
+                        const isIconImage = isImageUrl(assetIcon);
+
                         return `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                          <td style="padding: 12px 10px; color: #1e293b; font-weight: 500;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                              <div style="width: 20px; height: 20px; border-radius: 4px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                        <tr class="asset-row">
+                          <td class="asset-cell">
+                            <div class="asset-info">
+                              <div class="asset-icon">
                                 ${
-                                  asset.type === "share"
-                                    ? "📈"
-                                    : asset.type === "bond"
-                                      ? "📋"
-                                      : asset.type === "crypto"
-                                        ? "₿"
-                                        : asset.type === "currency"
-                                          ? "💵"
-                                          : asset.type === "metal"
-                                            ? "🥇"
-                                            : asset.type === "deposit"
-                                              ? "🏦"
-                                              : asset.type === "realestate"
-                                                ? "🏠"
-                                                : asset.type === "business"
-                                                  ? "🏢"
-                                                  : "📊"
+                                  isIconImage
+                                    ? `<img src="${assetIcon}" alt="" class="icon-img" />`
+                                    : `<span class="icon-text">${assetIcon}</span>`
                                 }
                               </div>
-                              <span>${asset.name || "Без названия"}</span>
-                              ${asset.ticker ? `<span style="color: #64748b; font-size: 11px;">(${asset.ticker})</span>` : ""}
+                              <div class="asset-details">
+                                <div class="asset-name">
+                                  ${asset.name || "Без названия"}
+                                </div>
+                                ${
+                                  asset.ticker || asset.code
+                                    ? `
+                                  <div class="asset-ticker">
+                                    ${asset.ticker || asset.code}
+                                  </div>
+                                `
+                                    : ""
+                                }
+                              </div>
                             </div>
                           </td>
-                          <td style="padding: 12px 10px; text-align: right; color: #475569;">
+                          <td class="asset-cell text-right monospace">
                             ${asset.quantity} ${unitType}
                           </td>
-                          <td style="padding: 12px 10px; text-align: right; color: #475569; font-family: monospace;">
+                          <td class="asset-cell text-right monospace">
                             ${displayPrice}
                           </td>
-                          <td style="padding: 12px 10px; text-align: right; color: #1e293b; font-weight: 600; font-family: monospace;">
+                          <td class="asset-cell text-right monospace">
                             ${formatCurrency(assetValue)}
                           </td>
-                          <td style="padding: 12px 10px; text-align: right; color: ${asset.yearChangePercent >= 0 ? "#059669" : "#dc2626"}; font-weight: 500;">
+                          <td class="asset-cell text-right ${asset.yearChangePercent >= 0 ? "positive" : "negative"}">
                             ${formatPercentage(asset.yearChangePercent)}
                           </td>
                         </tr>
                       `;
                       })
                       .join("")}
-                    
-                    <!-- Итог по группе -->
-                    <tr style="background: #f8fafc; font-weight: bold;">
-                      <td style="padding: 12px 10px; color: #334155;" colspan="3">Итого по ${getTypeName(type).toLowerCase()}:</td>
-                      <td style="padding: 12px 10px; text-align: right; color: #1e293b; font-family: monospace;">
-                        ${formatCurrency(
-                          typeAssets.reduce((sum, asset) => {
-                            const assetValue =
-                              asset.type === "deposit"
-                                ? asset.value || 0
-                                : asset.type === "bond"
-                                  ? (asset.pricePercent / 100) *
-                                    asset.quantity *
-                                    1000
-                                  : (asset.price || asset.value || 0) *
-                                    asset.quantity;
-                            return sum + assetValue;
-                          }, 0)
-                        )}
-                      </td>
-                      <td style="padding: 12px 10px; text-align: right; color: #475569;">
-                        —
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
-            `
-              )
-              .join("")}
-          </div>
+            `;
+            })
+            .join("")}
+        </div>
 
-          <!-- Примечания -->
-          <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #64748b; font-size: 12px;">
-            <div style="margin-bottom: 10px;">
-              <strong>Примечания:</strong>
-            </div>
-            <ul style="margin: 0; padding-left: 20px;">
-              <li>Отчет сгенерирован автоматически на основе данных портфеля</li>
-              <li>Цены и курсы обновляются в реальном времени</li>
-              <li>Доходность указана в годовом исчислении</li>
-              <li>Для депозитов доходность соответствует процентной ставке</li>
-            </ul>
-          </div>
-
-          <!-- Подвал -->
-          <div style="margin-top: 30px; text-align: center; color: #94a3b8; font-size: 11px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-            <div>© ${new Date().getFullYear()} Инвестиционный портфель • Сгенерировано автоматически</div>
-            <div style="margin-top: 5px;">Данные предоставлены MOEX, ЦБ РФ, CoinGecko и другими источниками</div>
+        <!-- Подвал -->
+        <div class="footer">
+          <div class="footer-brand">sarigma inc</div>
+          <div class="footer-note">
+            Отчет сгенерирован автоматически • Данные предоставлены из открытых источников
           </div>
         </div>
-      `;
+      </body>
+      </html>
+    `;
+  };
 
-      document.body.appendChild(pdfContainer);
+  // Генерация PDF
+  const generatePDF = async () => {
+    if (!assets || assets.length === 0) {
+      setErrorMessage("Портфель пуст. Невозможно сгенерировать PDF.");
+      setShowErrorModal(true);
+      return;
+    }
 
-      // Конвертируем HTML в canvas
-      const canvas = await html2canvas(pdfContainer, {
+    setIsGenerating(true);
+
+    try {
+      // Создаем временное окно для рендеринга
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        throw new Error(
+          "Не удалось открыть окно для печати. Пожалуйста, разрешите всплывающие окна."
+        );
+      }
+
+      // Вставляем HTML в окно
+      printWindow.document.write(createPDFHTML());
+      printWindow.document.close();
+
+      // Ждем загрузки контента
+      await new Promise((resolve) => {
+        printWindow.onload = resolve;
+        setTimeout(resolve, 1000); // Fallback таймаут
+      });
+
+      // Используем html2canvas для рендеринга
+      const canvas = await html2canvas(printWindow.document.body, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
-        onclone: (clonedDoc) => {
-          clonedDoc.body.style.fontFamily = "Arial, sans-serif";
-        },
+        windowWidth: printWindow.document.body.scrollWidth,
+        windowHeight: printWindow.document.body.scrollHeight,
       });
+
+      // Закрываем временное окно
+      printWindow.close();
 
       // Создаем PDF
       const imgData = canvas.toDataURL("image/png");
@@ -361,12 +731,27 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
         orientation: "portrait",
         unit: "mm",
         format: "a4",
+        compress: true,
       });
 
       const imgWidth = 210;
+      const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Добавляем первую страницу
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Добавляем дополнительные страницы если нужно
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
 
       // Генерируем имя файла
       const fileName = `Портфель_${portfolioName || "Мой_портфель"}_${new Date().toISOString().split("T")[0]}.pdf`;
@@ -374,53 +759,93 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
       // Сохраняем PDF
       pdf.save(fileName);
 
-      // Удаляем временный контейнер
-      document.body.removeChild(pdfContainer);
-
       if (onExportComplete) {
         onExportComplete();
       }
     } catch (error) {
       console.error("Ошибка при генерации PDF:", error);
-      alert("Произошла ошибка при генерации PDF. Попробуйте еще раз.");
+      setErrorMessage(`Произошла ошибка при генерации PDF: ${error.message}`);
+      setShowErrorModal(true);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  if (!assets || assets.length === 0) {
-    return null;
-  }
-
   return (
-    <button
-      onClick={generatePDF}
-      style={{
-        padding: "0.625rem 1.25rem",
-        background: "rgba(239, 68, 68, 0.1)",
-        border: "1px solid rgba(239, 68, 68, 0.3)",
-        color: "var(--error-color)",
-        borderRadius: "var(--border-radius)",
-        fontSize: "0.9rem",
-        fontWeight: "500",
-        cursor: "pointer",
-        transition: "var(--transition)",
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-        whiteSpace: "nowrap",
-      }}
-      onMouseEnter={(e) => {
-        e.target.style.background = "rgba(239, 68, 68, 0.15)";
-        e.target.style.borderColor = "rgba(239, 68, 68, 0.5)";
-        e.target.style.transform = "translateY(-1px)";
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.background = "rgba(239, 68, 68, 0.1)";
-        e.target.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        e.target.style.transform = "translateY(0)";
-      }}
-    >
-      📄 Экспорт в PDF
-    </button>
+    <>
+      <button
+        onClick={generatePDF}
+        disabled={isGenerating}
+        style={{
+          padding: "0.625rem 1.25rem",
+          background: isGenerating
+            ? "rgba(156, 163, 175, 0.1)"
+            : "rgba(239, 68, 68, 0.1)",
+          border: isGenerating
+            ? "1px solid rgba(156, 163, 175, 0.3)"
+            : "1px solid rgba(239, 68, 68, 0.3)",
+          color: isGenerating
+            ? "var(--dark-text-tertiary)"
+            : "var(--error-color)",
+          borderRadius: "var(--border-radius)",
+          fontSize: "0.9rem",
+          fontWeight: "500",
+          cursor: isGenerating ? "not-allowed" : "pointer",
+          transition: "var(--transition)",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          whiteSpace: "nowrap",
+          opacity: isGenerating ? 0.7 : 1,
+        }}
+        onMouseEnter={(e) => {
+          if (!isGenerating) {
+            e.target.style.background = "rgba(239, 68, 68, 0.15)";
+            e.target.style.borderColor = "rgba(239, 68, 68, 0.5)";
+            e.target.style.transform = "translateY(-1px)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isGenerating) {
+            e.target.style.background = "rgba(239, 68, 68, 0.1)";
+            e.target.style.borderColor = "rgba(239, 68, 68, 0.3)";
+            e.target.style.transform = "translateY(0)";
+          }
+        }}
+      >
+        {isGenerating ? (
+          <>
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                border: "2px solid rgba(239, 68, 68, 0.3)",
+                borderTopColor: "var(--error-color)",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                display: "inline-block",
+              }}
+            />
+            Генерация...
+          </>
+        ) : (
+          <>📄 Экспорт в PDF</>
+        )}
+      </button>
+
+      {/* Модальное окно с ошибкой */}
+      <Modal
+        isOpen={showErrorModal}
+        type="error"
+        title="Ошибка генерации PDF"
+        message={errorMessage}
+        confirmText="Закрыть"
+        showCancel={false}
+        onConfirm={() => setShowErrorModal(false)}
+        autoCloseDelay={0}
+        icon="❌"
+      />
+    </>
   );
 };
 
