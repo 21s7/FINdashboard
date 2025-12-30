@@ -444,7 +444,7 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
             <img src="${logo}" alt="Logo" class="logo" />
           </div>
           <div class="title-container">
-            <h1 class="main-title">📊 Инвестиционный портфель</h1>
+            <h1 class="main-title"> Инвестиционный портфель</h1>
             <h2 class="subtitle">${portfolioName || "Мой Портфель"}</h2>
             <div class="date">
               Сгенерировано: ${new Date().toLocaleDateString("ru-RU", {
@@ -480,7 +480,7 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
 
         <!-- Диаграмма распределения -->
         <div class="distribution-section">
-          <h3 class="section-title">📈 Распределение активов</h3>
+          <h3 class="section-title"> Распределение активов</h3>
           <div class="distribution-grid">
             ${Object.entries(groups)
               .map(([type, typeAssets]) => {
@@ -535,7 +535,7 @@ const PortfolioPDFExporter = ({ portfolioName, onExportComplete }) => {
 
         <!-- Детализация активов -->
         <div class="assets-section">
-          <h3 class="section-title">📋 Детализация активов</h3>
+          <h3 class="section-title"> Детализация активов</h3>
           
           ${Object.entries(groups)
             .map(([type, typeAssets]) => {
